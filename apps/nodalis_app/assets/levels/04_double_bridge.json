@@ -1,0 +1,53 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch01_04_double_bridge",
+  "version": 1,
+  "chapterId": 1,
+  "indexInChapter": 4,
+  "metadata": {
+    "titleKey": "level_01_04_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "introductory",
+    "estimatedSolveTimeSeconds": 30,
+    "parMoves": 1,
+    "mechanics": [
+      "double_bridge"
+    ]
+  },
+  "grid": {
+    "width": 5,
+    "height": 5
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 2,
+      "capacity": 2
+    },
+    {
+      "id": 2,
+      "x": 3,
+      "y": 2,
+      "capacity": 2
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": true,
+    "hintTriggers": [
+      {
+        "triggerCondition": "on_start",
+        "semanticTextKey": "tutorial_double_bridge",
+        "highlightIslandIds": [
+          1,
+          2
+        ]
+      }
+    ]
+  },
+  "verification": {
+    "solutionHash": "fe4d30ea1fa9b887b92ea6cc36faae0bf1f3856d6a8d1e33386455936b5e3bbb",
+    "uniquenessVerified": true,
+    "deductionDepth": 1
+  }
+}

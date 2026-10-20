@@ -1,0 +1,56 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch01_03_the_line",
+  "version": 1,
+  "chapterId": 1,
+  "indexInChapter": 3,
+  "metadata": {
+    "titleKey": "level_01_03_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "introductory",
+    "estimatedSolveTimeSeconds": 45,
+    "parMoves": 3,
+    "mechanics": [
+      "single_bridge"
+    ]
+  },
+  "grid": {
+    "width": 5,
+    "height": 7
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 1,
+      "capacity": 1
+    },
+    {
+      "id": 2,
+      "x": 1,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 3,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 4,
+      "x": 3,
+      "y": 5,
+      "capacity": 1
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "d77e8f81558be3cee04954a500af239b15678419d76c81e8efa34e97d6ff2845",
+    "uniquenessVerified": true,
+    "deductionDepth": 1
+  }
+}

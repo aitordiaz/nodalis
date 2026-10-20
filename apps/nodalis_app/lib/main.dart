@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nodalis_level_format/nodalis_level_format.dart';
 import 'package:nodalis_ui/nodalis_ui.dart';
-import 'presentation/screens/gameplay_screen.dart';
-import 'session/game_session.dart';
+import 'content/level_repository.dart';
+import 'presentation/screens/level_select_screen.dart';
+import 'session/progress_repository.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,7 +11,14 @@ void main() {
 }
 
 class NodalisApp extends StatefulWidget {
-  const NodalisApp({super.key});
+  final LevelRepository? levelRepository;
+  final ProgressRepository? progressRepository;
+
+  const NodalisApp({
+    super.key,
+    this.levelRepository,
+    this.progressRepository,
+  });
 
   @override
   State<NodalisApp> createState() => _NodalisAppState();
@@ -18,13 +26,34 @@ class NodalisApp extends StatefulWidget {
 
 class _NodalisAppState extends State<NodalisApp> {
   bool _isDark = false;
-  late final GameSession _session;
+  late final LevelRepository _levelRepository;
+  late final ProgressRepository _progressRepository;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    final level = LevelParser.parseJson(_defaultLevelJson);
-    _session = GameSession(level: level);
+    _levelRepository = widget.levelRepository ?? LevelRepository();
+    _progressRepository = widget.progressRepository ?? ProgressRepository();
+    _initializeContent();
+  }
+
+  Future<void> _initializeContent() async {
+    if (!_levelRepository.isLoaded) {
+      try {
+        await _levelRepository.loadBundledLevels();
+      } catch (_) {
+        // Fallback for widget testing environments without full asset pipeline
+        _levelRepository.loadLevels([
+          LevelParser.parseJson(_fallbackLevelJson),
+        ]);
+      }
+    }
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _toggleTheme() {
@@ -43,16 +72,24 @@ class _NodalisAppState extends State<NodalisApp> {
         title: 'Nodalis',
         debugShowCheckedModeBanner: false,
         theme: themeData.toMaterialTheme(),
-        home: GameplayScreen(
-          session: _session,
-          onToggleTheme: _toggleTheme,
-          isDark: _isDark,
-        ),
+        home: _isLoading
+            ? Scaffold(
+                backgroundColor: themeData.palette.background,
+                body: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            : LevelSelectScreen(
+                levelRepository: _levelRepository,
+                progressRepository: _progressRepository,
+                onToggleTheme: _toggleTheme,
+                isDark: _isDark,
+              ),
       ),
     );
   }
 
-  static const _defaultLevelJson = '''
+  static const _fallbackLevelJson = '''
 {
   "\$schema": "../schemas/level.schema.json",
   "id": "ch01_01_first_steps",
@@ -77,16 +114,10 @@ class _NodalisAppState extends State<NodalisApp> {
   ],
   "tutorial": {
     "hasInteractiveTutorial": true,
-    "hintTriggers": [
-      {
-        "triggerCondition": "on_start",
-        "semanticTextKey": "tutorial_drag_to_connect",
-        "highlightIslandIds": [1, 2]
-      }
-    ]
+    "hintTriggers": []
   },
   "verification": {
-    "solutionHash": "d5e89a23f4b67e1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a",
+    "solutionHash": "db23a7416c02f812e1e04052c751e8df09a72d84a101677eaae2b124729b7a20",
     "uniquenessVerified": true,
     "deductionDepth": 1
   }

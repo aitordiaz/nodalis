@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:nodalis_domain/nodalis_domain.dart';
 import 'package:nodalis_ui/nodalis_ui.dart';
+import '../../content/level_repository.dart';
 import '../../session/game_session.dart';
+import '../../session/progress_repository.dart';
 
 /// Primary gameplay screen displaying the board, chapter metadata, and controls.
 class GameplayScreen extends StatefulWidget {
   final GameSession session;
+  final ProgressRepository? progressRepository;
+  final LevelRepository? levelRepository;
   final VoidCallback onToggleTheme;
   final bool isDark;
 
   const GameplayScreen({
     super.key,
     required this.session,
+    this.progressRepository,
+    this.levelRepository,
     required this.onToggleTheme,
     required this.isDark,
   });
@@ -47,6 +53,10 @@ class _GameplayScreenState extends State<GameplayScreen> {
 
     if (widget.session.isSolved && !_hasShownSolvedDialog) {
       _hasShownSolvedDialog = true;
+      widget.progressRepository?.recordCompletion(
+        widget.session.level.id,
+        widget.session.moveCount,
+      );
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showSolvedDialog();
       });
@@ -73,6 +83,8 @@ class _GameplayScreenState extends State<GameplayScreen> {
   void _showSolvedDialog() {
     final theme = NodalisTheme.of(context);
     final palette = theme.palette;
+    final nextLevel =
+        widget.levelRepository?.getNextLevel(widget.session.level);
 
     showDialog<void>(
       context: context,
@@ -103,16 +115,41 @@ class _GameplayScreenState extends State<GameplayScreen> {
                 style: TextStyle(color: palette.islandSelectedStroke),
               ),
             ),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: palette.islandSelectedStroke,
-                foregroundColor: palette.background,
+            if (nextLevel != null)
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: palette.islandSelectedStroke,
+                  foregroundColor: palette.background,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute<void>(
+                      builder: (context) {
+                        return GameplayScreen(
+                          session: GameSession(level: nextLevel),
+                          progressRepository: widget.progressRepository,
+                          levelRepository: widget.levelRepository,
+                          onToggleTheme: widget.onToggleTheme,
+                          isDark: widget.isDark,
+                        );
+                      },
+                    ),
+                  );
+                },
+                child: const Text('Next Level'),
+              )
+            else
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: palette.islandSelectedStroke,
+                  foregroundColor: palette.background,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Done'),
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Done'),
-            ),
           ],
         );
       },
@@ -123,6 +160,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
   Widget build(BuildContext context) {
     final theme = NodalisTheme.of(context);
     final palette = theme.palette;
+    final canPop = Navigator.of(context).canPop();
 
     return Scaffold(
       backgroundColor: palette.background,
@@ -132,30 +170,41 @@ class _GameplayScreenState extends State<GameplayScreen> {
             // Header Bar
             Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
                     children: [
-                      Text(
-                        'Chapter ${widget.session.level.chapterId}',
-                        style: TextStyle(
-                          color: palette.textSecondary,
-                          fontSize: 13.0,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.5,
+                      if (canPop)
+                        IconButton(
+                          icon: Icon(Icons.arrow_back_rounded,
+                              color: palette.textPrimary),
+                          tooltip: 'Back to Levels',
+                          onPressed: () => Navigator.of(context).pop(),
                         ),
-                      ),
-                      const SizedBox(height: 2.0),
-                      Text(
-                        'Level ${widget.session.level.indexInChapter}',
-                        style: TextStyle(
-                          color: palette.textPrimary,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Chapter ${widget.session.level.chapterId}',
+                            style: TextStyle(
+                              color: palette.textSecondary,
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 2.0),
+                          Text(
+                            'Level ${widget.session.level.indexInChapter}',
+                            style: TextStyle(
+                              color: palette.textPrimary,
+                              fontSize: 19.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -169,7 +218,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(width: 14.0),
+                      const SizedBox(width: 10.0),
                       IconButton(
                         icon: Icon(
                           widget.isDark

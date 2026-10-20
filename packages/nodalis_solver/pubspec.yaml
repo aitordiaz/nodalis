@@ -9,6 +9,7 @@ environment:
 resolution: workspace
 
 dependencies:
+  crypto: ^3.0.3
   meta: ^1.15.0
   nodalis_domain:
   nodalis_level_format:

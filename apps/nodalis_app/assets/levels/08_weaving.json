@@ -1,0 +1,69 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch01_08_weaving",
+  "version": 1,
+  "chapterId": 1,
+  "indexInChapter": 8,
+  "metadata": {
+    "titleKey": "level_01_08_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "medium",
+    "estimatedSolveTimeSeconds": 90,
+    "parMoves": 6,
+    "mechanics": [
+      "single_bridge",
+      "double_bridge"
+    ]
+  },
+  "grid": {
+    "width": 6,
+    "height": 6
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 1,
+      "capacity": 3
+    },
+    {
+      "id": 2,
+      "x": 4,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 1,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 4,
+      "x": 3,
+      "y": 3,
+      "capacity": 3
+    },
+    {
+      "id": 5,
+      "x": 4,
+      "y": 3,
+      "capacity": 1
+    },
+    {
+      "id": 6,
+      "x": 3,
+      "y": 5,
+      "capacity": 1
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "9f14c067987d8d65e8e052f770e4e6d2c2f0afff4a22a96334278876fb9c815c",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

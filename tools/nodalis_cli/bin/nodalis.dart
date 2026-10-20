@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'package:args/args.dart';
 import 'package:nodalis_level_format/nodalis_level_format.dart';
+import 'package:nodalis_solver/nodalis_solver.dart';
 
 void main(List<String> arguments) {
   final parser = ArgParser()
     ..addCommand('validate-all')
-    ..addOption('dir', abbr: 'd', defaultsTo: 'levels');
+    ..addOption('dir', abbr: 'd', defaultsTo: 'levels')
+    ..addFlag('update-hashes', abbr: 'u', defaultsTo: false);
 
   final results = parser.parse(arguments);
 
@@ -30,44 +32,50 @@ void main(List<String> arguments) {
     }
 
     stdout.writeln('Validating ${levelFiles.length} level file(s)...');
+    final shouldUpdateHashes = results['update-hashes'] as bool? ?? false;
+    const validator = LevelValidator();
     var errors = 0;
 
     for (final file in levelFiles) {
       try {
         final content = file.readAsStringSync();
-        final level = LevelParser.parseJson(content);
+        var level = LevelParser.parseJson(content);
 
-        // Sanity checks:
-        if (level.islands.isEmpty) {
-          throw FormatException('Level ${level.id} contains no islands');
+        var report = validator.validate(level);
+
+        if (shouldUpdateHashes &&
+            report.isUnique &&
+            report.computedSolutionHash != null) {
+          if (level.verification?.solutionHash != report.computedSolutionHash) {
+            level = LevelDefinition(
+              id: level.id,
+              version: level.version,
+              chapterId: level.chapterId,
+              indexInChapter: level.indexInChapter,
+              metadata: level.metadata,
+              gridWidth: level.gridWidth,
+              gridHeight: level.gridHeight,
+              islands: level.islands,
+              tutorial: level.tutorial,
+              verification: LevelVerification(
+                solutionHash: report.computedSolutionHash!,
+                uniquenessVerified: true,
+                deductionDepth: level.verification?.deductionDepth ?? 1,
+              ),
+            );
+            file.writeAsStringSync(LevelParser.toJson(level));
+            stdout.writeln(
+                '  [HASH UPDATED] ${file.path} -> ${report.computedSolutionHash}');
+            report = validator.validate(level);
+          }
         }
 
-        // Check for duplicate island coordinates or IDs
-        final seenCoords = <String>{};
-        final seenIds = <int>{};
-
-        for (final island in level.islands) {
-          final coordKey = '${island.position.x},${island.position.y}';
-          if (!seenCoords.add(coordKey)) {
-            throw FormatException(
-                'Duplicate island position ($coordKey) in level ${level.id}');
-          }
-          if (!seenIds.add(island.id)) {
-            throw FormatException(
-                'Duplicate island ID (${island.id}) in level ${level.id}');
-          }
-          if (island.position.x < 0 || island.position.x >= level.gridWidth) {
-            throw FormatException(
-                'Island ${island.id} X (${island.position.x}) out of bounds');
-          }
-          if (island.position.y < 0 || island.position.y >= level.gridHeight) {
-            throw FormatException(
-                'Island ${island.id} Y (${island.position.y}) out of bounds');
-          }
+        if (!report.passed) {
+          throw FormatException(report.errors.join(', '));
         }
 
         stdout.writeln(
-            '  ✓ [PASS] ${file.path} (${level.id}) - ${level.islands.length} islands');
+            '  ✓ [PASS] ${file.path} (${level.id}) - ${level.islands.length} islands, unique solution verified (hash: ${report.computedSolutionHash?.substring(0, 8)}...)');
       } catch (e) {
         stderr.writeln('  ✗ [FAIL] ${file.path}: $e');
         errors++;

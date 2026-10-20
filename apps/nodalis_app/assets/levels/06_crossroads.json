@@ -1,0 +1,63 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch01_06_crossroads",
+  "version": 1,
+  "chapterId": 1,
+  "indexInChapter": 6,
+  "metadata": {
+    "titleKey": "level_01_06_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "easy",
+    "estimatedSolveTimeSeconds": 60,
+    "parMoves": 4,
+    "mechanics": [
+      "single_bridge",
+      "intersection_rule"
+    ]
+  },
+  "grid": {
+    "width": 7,
+    "height": 7
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 3,
+      "y": 1,
+      "capacity": 1
+    },
+    {
+      "id": 2,
+      "x": 1,
+      "y": 3,
+      "capacity": 1
+    },
+    {
+      "id": 3,
+      "x": 3,
+      "y": 3,
+      "capacity": 4
+    },
+    {
+      "id": 4,
+      "x": 5,
+      "y": 3,
+      "capacity": 1
+    },
+    {
+      "id": 5,
+      "x": 3,
+      "y": 5,
+      "capacity": 1
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "abd8789cab06695762fed69f91e2fc7c9fbf6c36e07a2ca78f0682a19f0c4820",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

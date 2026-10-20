@@ -2,6 +2,9 @@ import 'package:meta/meta.dart';
 import 'package:nodalis_domain/nodalis_domain.dart';
 import 'package:nodalis_level_format/nodalis_level_format.dart';
 
+export 'src/search/backtracking_solver.dart';
+export 'src/validator/level_validator.dart';
+
 /// Result produced by the solver during level verification or solving.
 @immutable
 final class SolverResult {

@@ -1,0 +1,58 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch01_05_corner_lock",
+  "version": 1,
+  "chapterId": 1,
+  "indexInChapter": 5,
+  "metadata": {
+    "titleKey": "level_01_05_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "easy",
+    "estimatedSolveTimeSeconds": 60,
+    "parMoves": 4,
+    "mechanics": [
+      "single_bridge",
+      "double_bridge",
+      "corner_lock"
+    ]
+  },
+  "grid": {
+    "width": 5,
+    "height": 5
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 1,
+      "capacity": 3
+    },
+    {
+      "id": 2,
+      "x": 3,
+      "y": 1,
+      "capacity": 1
+    },
+    {
+      "id": 3,
+      "x": 1,
+      "y": 3,
+      "capacity": 3
+    },
+    {
+      "id": 4,
+      "x": 3,
+      "y": 3,
+      "capacity": 1
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "e109a18cb6db119f1563e0c39d73ec4ac0bdb4a53717646968726e0b9a13b9f0",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

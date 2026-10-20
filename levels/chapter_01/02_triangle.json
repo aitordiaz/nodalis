@@ -1,0 +1,50 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch01_02_triangle",
+  "version": 1,
+  "chapterId": 1,
+  "indexInChapter": 2,
+  "metadata": {
+    "titleKey": "level_01_02_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "introductory",
+    "estimatedSolveTimeSeconds": 40,
+    "parMoves": 2,
+    "mechanics": [
+      "single_bridge"
+    ]
+  },
+  "grid": {
+    "width": 5,
+    "height": 5
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 1,
+      "capacity": 1
+    },
+    {
+      "id": 2,
+      "x": 3,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 3,
+      "y": 3,
+      "capacity": 1
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "2acf61e1231222e7723249593d2e6d83e1e3f2a5b95e8ec82eb2feeeea6e475a",
+    "uniquenessVerified": true,
+    "deductionDepth": 1
+  }
+}

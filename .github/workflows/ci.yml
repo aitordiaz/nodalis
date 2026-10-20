@@ -52,8 +52,8 @@ jobs:
       - name: Pub Get
         run: flutter pub get
 
-      - name: Run Domain & Format Tests
-        run: dart test packages/nodalis_domain packages/nodalis_level_format
+      - name: Run Domain, Format & Solver Tests
+        run: dart test packages/nodalis_domain packages/nodalis_level_format packages/nodalis_solver
 
   flutter-widget-tests:
     name: Flutter UI & App Widget Tests

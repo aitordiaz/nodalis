@@ -1,0 +1,63 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch01_07_pinch_point",
+  "version": 1,
+  "chapterId": 1,
+  "indexInChapter": 7,
+  "metadata": {
+    "titleKey": "level_01_07_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "easy",
+    "estimatedSolveTimeSeconds": 75,
+    "parMoves": 5,
+    "mechanics": [
+      "single_bridge",
+      "isolation_prevention"
+    ]
+  },
+  "grid": {
+    "width": 5,
+    "height": 7
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 2,
+      "x": 3,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 3,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 4,
+      "x": 1,
+      "y": 3,
+      "capacity": 3
+    },
+    {
+      "id": 5,
+      "x": 1,
+      "y": 5,
+      "capacity": 1
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "ef665931f835382f7828e698cc85cf1d915fdbe199514a78b46e0c7ebbcfac0d",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}
