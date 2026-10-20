@@ -21,17 +21,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Dart
-        uses: dart-lang/setup-dart@v1
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
 
       - name: Bootstrap Workspace Dependencies
-        run: dart pub get
+        run: flutter pub get
 
       - name: Verify Code Formatting
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Run Static Analyzer
-        run: dart analyze --fatal-infos
+        run: flutter analyze --fatal-infos
 
   unit-and-domain-tests:
     name: Domain & Level Format Unit Tests
@@ -40,14 +43,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Dart
-        uses: dart-lang/setup-dart@v1
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
 
       - name: Pub Get
-        run: dart pub get
+        run: flutter pub get
 
       - name: Run Domain & Format Tests
         run: dart test packages/nodalis_domain packages/nodalis_level_format
+
+  flutter-widget-tests:
+    name: Flutter UI & App Widget Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Pub Get
+        run: flutter pub get
+
+      - name: Run Flutter Widget Tests
+        run: flutter test packages/nodalis_ui apps/nodalis_app
 
   validate-levels:
     name: Headless Level Content Verification
@@ -56,11 +81,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Dart
-        uses: dart-lang/setup-dart@v1
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
 
       - name: Pub Get
-        run: dart pub get
+        run: flutter pub get
 
       - name: Run Level Validator CLI
         run: dart run tools/nodalis_cli/bin/nodalis.dart validate-all --dir=levels/

@@ -1,0 +1,26 @@
+name: nodalis_app
+description: "A calm, premium logic puzzle game."
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: "^3.5.0"
+  flutter: ">=3.24.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  nodalis_domain:
+  nodalis_level_format:
+  nodalis_ui:
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/levels/

@@ -6,11 +6,16 @@ environment:
   sdk: "^3.5.0"
 
 workspace:
+  - apps/nodalis_app
   - packages/nodalis_domain
   - packages/nodalis_level_format
   - packages/nodalis_solver
+  - packages/nodalis_ui
   - tools/nodalis_cli
 
 dev_dependencies:
   lints: ^4.0.0
   test: ^1.25.0
+
+flutter:
+  uses-material-design: true
