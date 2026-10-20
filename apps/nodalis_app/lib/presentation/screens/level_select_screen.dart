@@ -135,7 +135,7 @@ class LevelSelectScreen extends StatelessWidget {
         ? palette.islandSatisfiedFill
         : (isUnlocked
             ? palette.surface
-            : palette.surfaceSubtle.withOpacity(0.5));
+            : palette.surfaceSubtle.withAlpha(128));
 
     final borderColor = isCompleted
         ? palette.islandSatisfiedStroke
@@ -212,7 +212,7 @@ class LevelSelectScreen extends StatelessWidget {
                   style: TextStyle(
                     color: isUnlocked
                         ? palette.textMuted
-                        : palette.textMuted.withOpacity(0.6),
+                        : palette.textMuted.withAlpha(153),
                     fontSize: 11.0,
                   ),
                 ),
