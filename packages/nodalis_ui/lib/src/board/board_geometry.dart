@@ -97,7 +97,7 @@ final class BoardGeometry {
       final posB = islandPositions[bridge.islandBId];
       if (posA == null || posB == null) continue;
 
-      if (_distanceToSegment(localPosition, posA, posB) <= hitThreshold) {
+      if (distanceToSegment(localPosition, posA, posB) <= hitThreshold) {
         return (fromId: bridge.islandAId, toId: bridge.islandBId);
       }
     }
@@ -105,7 +105,7 @@ final class BoardGeometry {
   }
 
   /// Calculates perpendicular distance from point P to segment AB.
-  static double _distanceToSegment(Offset p, Offset a, Offset b) {
+  static double distanceToSegment(Offset p, Offset a, Offset b) {
     final ab = b - a;
     final lengthSquared = ab.dx * ab.dx + ab.dy * ab.dy;
     if (lengthSquared == 0) return (p - a).distance;

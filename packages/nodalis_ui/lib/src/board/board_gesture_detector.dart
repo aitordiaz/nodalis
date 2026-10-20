@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:nodalis_domain/nodalis_domain.dart';
-import '../tokens/dimensions.dart';
 import 'board_geometry.dart';
 import 'board_view_model.dart';
 
@@ -80,8 +79,30 @@ class _BoardGestureDetectorState extends State<BoardGestureDetector> {
         return;
       }
 
-      // Tapped empty space: deselect
+      // 2. If an island was selected, check if user tapped in the corridor toward a valid neighbor
       if (selectedId != null) {
+        final startPos = widget.geometry.islandPositions[selectedId];
+        if (startPos != null) {
+          final neighbors =
+              widget.viewModel.board.getAvailableOrthogonalNeighbors(selectedId);
+          for (final neighbor in neighbors) {
+            final neighborPos = widget.geometry.islandPositions[neighbor.id];
+            if (neighborPos == null) continue;
+
+            final distToSegment = BoardGeometry.distanceToSegment(
+                details.localPosition, startPos, neighborPos);
+            if (distToSegment <= 35.0) {
+              // Tapped along the corridor between selected island and this neighbor!
+              widget.onConnect(selectedId, neighbor.id);
+              widget.onViewModelChanged(
+                widget.viewModel.copyWith(selectedIslandId: () => null),
+              );
+              return;
+            }
+          }
+        }
+
+        // Tapped empty space far from corridor: deselect
         widget.onViewModelChanged(
           widget.viewModel.copyWith(selectedIslandId: () => null),
         );
@@ -143,21 +164,40 @@ class _BoardGestureDetectorState extends State<BoardGestureDetector> {
     final currentPos = details.localPosition;
     final board = widget.viewModel.board;
     final startIsland = board.islands[startId];
+    final startPos = widget.geometry.islandPositions[startId];
 
     int? candidateTargetId;
-    if (startIsland != null) {
-      // Check nearest orthogonal neighbor within hysteresis distance
+    if (startIsland != null && startPos != null) {
       final neighbors = board.getAvailableOrthogonalNeighbors(startId);
-      var minDistance =
-          NodalisDimensions.islandHitRadius + NodalisDimensions.dragHysteresis;
+      final dragVector = currentPos - startPos;
 
       for (final neighbor in neighbors) {
         final neighborPos = widget.geometry.islandPositions[neighbor.id];
-        if (neighborPos != null) {
-          final dist = (neighborPos - currentPos).distance;
-          if (dist < minDistance) {
-            minDistance = dist;
+        if (neighborPos == null) continue;
+
+        final targetVector = neighborPos - startPos;
+        final targetDistance = targetVector.distance;
+        if (targetDistance <= 0) continue;
+
+        // Dot product projection of drag vector onto target vector
+        final dot =
+            dragVector.dx * targetVector.dx + dragVector.dy * targetVector.dy;
+        if (dot > 0) {
+          final projection = dot / targetDistance;
+          // Perpendicular distance from drag position to axis
+          final perpDistance = (dragVector -
+                  Offset(
+                    targetVector.dx * (projection / targetDistance),
+                    targetVector.dy * (projection / targetDistance),
+                  ))
+              .distance;
+
+          // Snap if within 45dp corridor of line and dragged at least 25% or within 55dp of target
+          if (perpDistance <= 45.0 &&
+              (projection >= targetDistance * 0.25 ||
+                  (neighborPos - currentPos).distance <= 55.0)) {
             candidateTargetId = neighbor.id;
+            break;
           }
         }
       }

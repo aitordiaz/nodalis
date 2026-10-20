@@ -16,10 +16,13 @@ abstract final class NodalisDimensions {
   static const double islandStrokeWidth = 2.0;
 
   /// Stroke width for a single bridge.
-  static const double bridgeStrokeWidth = 2.5;
+  static const double bridgeStrokeWidth = 5.0;
+
+  /// Stroke width for each line of a double bridge.
+  static const double doubleBridgeStrokeWidth = 3.5;
 
   /// Offset between the two parallel lines in a double bridge.
-  static const double doubleBridgeGap = 6.0;
+  static const double doubleBridgeGap = 9.0;
 
   /// Hysteresis threshold for dragging connections between islands (dp).
   static const double dragHysteresis = 12.0;

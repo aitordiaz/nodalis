@@ -22,8 +22,10 @@ final class BoardPainter extends CustomPainter {
   late final Paint _islandExceededFillPaint;
   late final Paint _islandExceededStrokePaint;
   late final Paint _bridgePaint;
+  late final Paint _doubleBridgePaint;
+  late final Paint _bridgeSatisfiedPaint;
+  late final Paint _doubleBridgeSatisfiedPaint;
   late final Paint _bridgePreviewPaint;
-  late final Paint _guideLinePaint;
   late final Paint _candidateHaloPaint;
   late final Paint _islandSelectedGlowPaint;
   late final Paint _pipFilledPaint;
@@ -84,21 +86,34 @@ final class BoardPainter extends CustomPainter {
       ..strokeWidth = NodalisDimensions.bridgeStrokeWidth
       ..strokeCap = StrokeCap.round;
 
+    _doubleBridgePaint = Paint()
+      ..color = palette.bridgeNormal
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = NodalisDimensions.doubleBridgeStrokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    _bridgeSatisfiedPaint = Paint()
+      ..color = palette.islandSatisfiedStroke
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = NodalisDimensions.bridgeStrokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    _doubleBridgeSatisfiedPaint = Paint()
+      ..color = palette.islandSatisfiedStroke
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = NodalisDimensions.doubleBridgeStrokeWidth
+      ..strokeCap = StrokeCap.round;
+
     _bridgePreviewPaint = Paint()
       ..color = palette.bridgePreview
       ..style = PaintingStyle.stroke
       ..strokeWidth = NodalisDimensions.bridgeStrokeWidth
       ..strokeCap = StrokeCap.round;
 
-    _guideLinePaint = Paint()
-      ..color = palette.bridgePreview.withOpacity(0.35)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
     _candidateHaloPaint = Paint()
-      ..color = palette.islandSelectedStroke.withOpacity(0.25)
+      ..color = palette.islandSelectedStroke.withOpacity(0.35)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
+      ..strokeWidth = 2.5;
 
     _islandSelectedGlowPaint = Paint()
       ..color = palette.islandSelectedStroke.withOpacity(0.20)
@@ -145,20 +160,14 @@ final class BoardPainter extends CustomPainter {
         viewModel.dragStartIslandId ?? viewModel.selectedIslandId;
     if (activeId == null) return;
 
-    final startPos = geometry.islandPositions[activeId];
-    if (startPos == null) return;
-
     for (final targetId in viewModel.validTargetIslandIds) {
       final targetPos = geometry.islandPositions[targetId];
       if (targetPos == null) continue;
 
-      // Draw faint guide connection line
-      canvas.drawLine(startPos, targetPos, _guideLinePaint);
-
-      // Draw candidate target halo
+      // Draw clear candidate target halo ring indicating valid tap/drop destination
       canvas.drawCircle(
         targetPos,
-        NodalisDimensions.islandVisualRadius + 4.5,
+        NodalisDimensions.islandVisualRadius + 5.0,
         _candidateHaloPaint,
       );
     }
@@ -183,34 +192,41 @@ final class BoardPainter extends CustomPainter {
       final posB = geometry.islandPositions[bridge.islandBId];
       if (posA == null || posB == null) continue;
 
-      final isHorizontal = posA.dy == posB.dy;
+      final isHorizontal = (posA.dy - posB.dy).abs() < 1.0;
+      final bothSatisfied = board.isIslandSatisfied(bridge.islandAId) &&
+          board.isIslandSatisfied(bridge.islandBId);
+
+      final singlePaint =
+          bothSatisfied ? _bridgeSatisfiedPaint : _bridgePaint;
+      final doublePaint =
+          bothSatisfied ? _doubleBridgeSatisfiedPaint : _doubleBridgePaint;
 
       switch (bridge.count) {
         case BridgeCount.single:
-          canvas.drawLine(posA, posB, _bridgePaint);
+          canvas.drawLine(posA, posB, singlePaint);
         case BridgeCount.double:
           const halfGap = NodalisDimensions.doubleBridgeGap / 2;
           if (isHorizontal) {
             canvas.drawLine(
               Offset(posA.dx, posA.dy - halfGap),
               Offset(posB.dx, posB.dy - halfGap),
-              _bridgePaint,
+              doublePaint,
             );
             canvas.drawLine(
               Offset(posA.dx, posA.dy + halfGap),
               Offset(posB.dx, posB.dy + halfGap),
-              _bridgePaint,
+              doublePaint,
             );
           } else {
             canvas.drawLine(
               Offset(posA.dx - halfGap, posA.dy),
               Offset(posB.dx - halfGap, posB.dy),
-              _bridgePaint,
+              doublePaint,
             );
             canvas.drawLine(
               Offset(posA.dx + halfGap, posA.dy),
               Offset(posB.dx + halfGap, posB.dy),
-              _bridgePaint,
+              doublePaint,
             );
           }
         case BridgeCount.none:
