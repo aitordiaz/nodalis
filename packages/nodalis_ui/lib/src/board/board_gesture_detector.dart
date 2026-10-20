@@ -65,6 +65,21 @@ class _BoardGestureDetectorState extends State<BoardGestureDetector> {
     final selectedId = widget.viewModel.selectedIslandId;
 
     if (tappedId == null) {
+      // Check if user tapped directly on an existing active bridge
+      final bridgeHit = widget.geometry.hitTestBridge(
+        details.localPosition,
+        widget.viewModel.board.bridges,
+      );
+      if (bridgeHit != null) {
+        widget.onConnect(bridgeHit.fromId, bridgeHit.toId);
+        if (selectedId != null) {
+          widget.onViewModelChanged(
+            widget.viewModel.copyWith(selectedIslandId: () => null),
+          );
+        }
+        return;
+      }
+
       // Tapped empty space: deselect
       if (selectedId != null) {
         widget.onViewModelChanged(

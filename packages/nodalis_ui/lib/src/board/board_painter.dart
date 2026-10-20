@@ -23,6 +23,11 @@ final class BoardPainter extends CustomPainter {
   late final Paint _islandExceededStrokePaint;
   late final Paint _bridgePaint;
   late final Paint _bridgePreviewPaint;
+  late final Paint _guideLinePaint;
+  late final Paint _candidateHaloPaint;
+  late final Paint _islandSelectedGlowPaint;
+  late final Paint _pipFilledPaint;
+  late final Paint _pipEmptyPaint;
 
   // Cached TextPainters for digits 1..8
   final Map<int, TextPainter> _cachedTextPainters = {};
@@ -84,6 +89,30 @@ final class BoardPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = NodalisDimensions.bridgeStrokeWidth
       ..strokeCap = StrokeCap.round;
+
+    _guideLinePaint = Paint()
+      ..color = palette.bridgePreview.withOpacity(0.35)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    _candidateHaloPaint = Paint()
+      ..color = palette.islandSelectedStroke.withOpacity(0.25)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+
+    _islandSelectedGlowPaint = Paint()
+      ..color = palette.islandSelectedStroke.withOpacity(0.20)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 8.0;
+
+    _pipFilledPaint = Paint()
+      ..color = palette.islandSatisfiedStroke
+      ..style = PaintingStyle.fill;
+
+    _pipEmptyPaint = Paint()
+      ..color = palette.textMuted.withOpacity(0.35)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
   }
 
   void _initTextPainters() {
@@ -105,9 +134,34 @@ final class BoardPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     _drawGridBackground(canvas);
+    _drawConnectionGuides(canvas);
     _drawBridges(canvas);
     _drawDragPreview(canvas);
     _drawIslands(canvas);
+  }
+
+  void _drawConnectionGuides(Canvas canvas) {
+    final activeId =
+        viewModel.dragStartIslandId ?? viewModel.selectedIslandId;
+    if (activeId == null) return;
+
+    final startPos = geometry.islandPositions[activeId];
+    if (startPos == null) return;
+
+    for (final targetId in viewModel.validTargetIslandIds) {
+      final targetPos = geometry.islandPositions[targetId];
+      if (targetPos == null) continue;
+
+      // Draw faint guide connection line
+      canvas.drawLine(startPos, targetPos, _guideLinePaint);
+
+      // Draw candidate target halo
+      canvas.drawCircle(
+        targetPos,
+        NodalisDimensions.islandVisualRadius + 4.5,
+        _candidateHaloPaint,
+      );
+    }
   }
 
   void _drawGridBackground(Canvas canvas) {
@@ -193,6 +247,15 @@ final class BoardPainter extends CustomPainter {
       final isSelected = viewModel.selectedIslandId == island.id;
       final isTargeted = viewModel.potentialTargetIslandId == island.id;
 
+      // 0. Selected island outer glowing halo
+      if (isSelected || isTargeted) {
+        canvas.drawCircle(
+          center,
+          NodalisDimensions.islandVisualRadius + 6.0,
+          _islandSelectedGlowPaint,
+        );
+      }
+
       // 1. Draw fill
       final fillPaint = isExceeded
           ? _islandExceededFillPaint
@@ -217,14 +280,33 @@ final class BoardPainter extends CustomPainter {
             _islandSatisfiedStrokePaint);
       }
 
-      // 4. Draw number digit
+      // 4. Draw number digit (slightly raised to make room for progress pips)
       final textPainter = _cachedTextPainters[island.requiredBridges];
       if (textPainter != null) {
         final textOffset = Offset(
           center.dx - textPainter.width / 2,
-          center.dy - textPainter.height / 2,
+          center.dy - textPainter.height / 2 - 2.5,
         );
         textPainter.paint(canvas, textOffset);
+      }
+
+      // 5. Draw connection progress pips at bottom of island
+      final totalPips = island.requiredBridges;
+      if (totalPips > 0 && totalPips <= 8) {
+        const pipRadius = 2.0;
+        const pipSpacing = 5.5;
+        final totalWidth = (totalPips - 1) * pipSpacing;
+        final startX = center.dx - totalWidth / 2;
+        final pipY = center.dy + NodalisDimensions.islandVisualRadius - 7.5;
+
+        for (var i = 0; i < totalPips; i++) {
+          final pipCenter = Offset(startX + i * pipSpacing, pipY);
+          if (i < connected) {
+            canvas.drawCircle(pipCenter, pipRadius, _pipFilledPaint);
+          } else {
+            canvas.drawCircle(pipCenter, pipRadius, _pipEmptyPaint);
+          }
+        }
       }
     }
   }

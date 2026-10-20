@@ -84,6 +84,40 @@ final class BoardGeometry {
     return null;
   }
 
+  /// Hit-tests a screen point to identify an active bridge.
+  /// Returns the `(fromId, toId)` pair if tapped within [hitThreshold] of an active bridge segment.
+  ({int fromId, int toId})? hitTestBridge(
+    Offset localPosition,
+    Map<BridgeKey, Bridge> bridges, {
+    double hitThreshold = 22.0,
+  }) {
+    for (final bridge in bridges.values) {
+      if (!bridge.isActive) continue;
+      final posA = islandPositions[bridge.islandAId];
+      final posB = islandPositions[bridge.islandBId];
+      if (posA == null || posB == null) continue;
+
+      if (_distanceToSegment(localPosition, posA, posB) <= hitThreshold) {
+        return (fromId: bridge.islandAId, toId: bridge.islandBId);
+      }
+    }
+    return null;
+  }
+
+  /// Calculates perpendicular distance from point P to segment AB.
+  static double _distanceToSegment(Offset p, Offset a, Offset b) {
+    final ab = b - a;
+    final lengthSquared = ab.dx * ab.dx + ab.dy * ab.dy;
+    if (lengthSquared == 0) return (p - a).distance;
+
+    final t = ((p.dx - a.dx) * ab.dx + (p.dy - a.dy) * ab.dy) / lengthSquared;
+    if (t < 0.0) return (p - a).distance;
+    if (t > 1.0) return (p - b).distance;
+
+    final projection = Offset(a.dx + t * ab.dx, a.dy + t * ab.dy);
+    return (p - projection).distance;
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

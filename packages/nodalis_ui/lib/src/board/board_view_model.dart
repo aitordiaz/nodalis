@@ -23,6 +23,14 @@ final class BoardViewModel {
   bool get isDragging =>
       dragStartIslandId != null && dragCurrentPosition != null;
 
+  /// IDs of valid orthogonal neighbor islands connectable to the active island.
+  Set<int> get validTargetIslandIds {
+    final activeId = dragStartIslandId ?? selectedIslandId;
+    if (activeId == null) return const {};
+    final neighbors = board.getAvailableOrthogonalNeighbors(activeId);
+    return neighbors.map((i) => i.id).toSet();
+  }
+
   BoardViewModel copyWith({
     Board? board,
     int? Function()? selectedIslandId,

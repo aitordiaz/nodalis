@@ -148,5 +148,29 @@ void main() {
       expect(res.isErr, isTrue);
       expect(res.errorOrNull, isA<CapacityExceededFailure>());
     });
+
+    test('cycles bridge to none when double bridge would exceed capacity', () {
+      final board = Board.initial(
+        width: 5,
+        height: 5,
+        islands: [
+          const Island(id: 1, position: (x: 1, y: 1), requiredBridges: 1),
+          const Island(id: 2, position: (x: 3, y: 1), requiredBridges: 1),
+        ],
+      );
+
+      // First cycle: 0 -> 1 bridge
+      final step1 =
+          board.applyAction(const CycleBridgeAction(fromId: 1, toId: 2));
+      expect(step1.isOk, isTrue);
+      expect(step1.valueOrNull!.bridges[makeBridgeKey(1, 2)]?.count,
+          BridgeCount.single);
+
+      // Second cycle: capacity is 1, so 2 is illegal -> smoothly wraps to none (0)
+      final step2 = step1.valueOrNull!
+          .applyAction(const CycleBridgeAction(fromId: 1, toId: 2));
+      expect(step2.isOk, isTrue);
+      expect(step2.valueOrNull!.bridges[makeBridgeKey(1, 2)], isNull);
+    });
   });
 }

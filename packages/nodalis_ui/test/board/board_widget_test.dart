@@ -91,5 +91,37 @@ void main() {
 
       handle.dispose();
     });
+
+    test('BoardGeometry hitTestBridge detects tap on active bridge segment', () {
+      final boardWithBridge = testBoard.applyAction(
+        const SetBridgeAction(
+          fromId: 1,
+          toId: 2,
+          targetCount: BridgeCount.single,
+        ),
+      ).valueOrNull!;
+
+      final geometry = BoardGeometry.compute(
+        canvasSize: const Size(400, 400),
+        gridWidth: 5,
+        gridHeight: 5,
+        islands: boardWithBridge.islands,
+      );
+
+      final pos1 = geometry.islandPositions[1]!;
+      final pos2 = geometry.islandPositions[2]!;
+      final midpoint = Offset((pos1.dx + pos2.dx) / 2, (pos1.dy + pos2.dy) / 2);
+
+      // Hit test exactly on the bridge midpoint
+      final hit = geometry.hitTestBridge(midpoint, boardWithBridge.bridges);
+      expect(hit, isNotNull);
+      expect(hit!.fromId, equals(1));
+      expect(hit.toId, equals(2));
+
+      // Hit test far away from the bridge
+      final farPoint = Offset(midpoint.dx, midpoint.dy + 80);
+      final miss = geometry.hitTestBridge(farPoint, boardWithBridge.bridges);
+      expect(miss, isNull);
+    });
   });
 }

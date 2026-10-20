@@ -164,9 +164,22 @@ final class Board {
   Result<Board, DomainFailure> _cycleBridge(int fromId, int toId) {
     final key = makeBridgeKey(fromId, toId);
     final currentCount = bridges[key]?.count ?? BridgeCount.none;
-    final nextCount = currentCount.next;
 
-    return _setBridge(fromId, toId, nextCount);
+    if (currentCount == BridgeCount.none) {
+      return _setBridge(fromId, toId, BridgeCount.single);
+    } else if (currentCount == BridgeCount.single) {
+      // Try double bridge first; if capacity would be exceeded, wrap directly to none
+      final doubleResult = _setBridge(fromId, toId, BridgeCount.double);
+      if (doubleResult.isOk) {
+        return doubleResult;
+      }
+      if (doubleResult.errorOrNull is CapacityExceededFailure) {
+        return _setBridge(fromId, toId, BridgeCount.none);
+      }
+      return doubleResult;
+    } else {
+      return _setBridge(fromId, toId, BridgeCount.none);
+    }
   }
 
   Result<Board, DomainFailure> _clearIslandBridges(int islandId) {

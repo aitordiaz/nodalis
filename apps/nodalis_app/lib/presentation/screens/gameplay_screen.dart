@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nodalis_domain/nodalis_domain.dart';
 import 'package:nodalis_ui/nodalis_ui.dart';
 import '../../content/level_repository.dart';
 import '../../session/game_session.dart';
 import '../../session/progress_repository.dart';
+import '../dialogs/how_to_play_dialog.dart';
+import '../widgets/tutorial_banner.dart';
 
 /// Primary gameplay screen displaying the board, chapter metadata, and controls.
 class GameplayScreen extends StatefulWidget {
@@ -53,6 +56,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
 
     if (widget.session.isSolved && !_hasShownSolvedDialog) {
       _hasShownSolvedDialog = true;
+      HapticFeedback.mediumImpact();
       widget.progressRepository?.recordCompletion(
         widget.session.level.id,
         widget.session.moveCount,
@@ -68,16 +72,35 @@ class _GameplayScreenState extends State<GameplayScreen> {
       CycleBridgeAction(fromId: fromId, toId: toId),
     );
 
-    if (result.isErr) {
+    if (result.isOk) {
+      HapticFeedback.lightImpact();
+    } else {
+      HapticFeedback.selectionClick();
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result.errorOrNull?.message ?? 'Invalid move'),
-          duration: const Duration(milliseconds: 1200),
+          content: Text(_formatFriendlyError(result.errorOrNull)),
+          duration: const Duration(milliseconds: 1400),
           behavior: SnackBarBehavior.floating,
         ),
       );
     }
+  }
+
+  String _formatFriendlyError(DomainFailure? failure) {
+    return switch (failure) {
+      CapacityExceededFailure(:final capacity) =>
+        'Island capacity reached (max $capacity bridges).',
+      CrossingBridgeFailure() =>
+        'Bridges cannot cross each other.',
+      NonOrthogonalConnectionFailure() =>
+        'Bridges must be strictly horizontal or vertical.',
+      InterveningIslandFailure() =>
+        'Cannot bridge across an intermediate island.',
+      SelfConnectionFailure() =>
+        'An island cannot connect to itself.',
+      _ => 'Invalid bridge placement.',
+    };
   }
 
   void _showSolvedDialog() {
@@ -218,7 +241,15 @@ class _GameplayScreenState extends State<GameplayScreen> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(width: 10.0),
+                      const SizedBox(width: 6.0),
+                      IconButton(
+                        icon: Icon(
+                          Icons.help_outline_rounded,
+                          color: palette.textPrimary,
+                        ),
+                        tooltip: 'How to Play',
+                        onPressed: () => HowToPlayDialog.show(context),
+                      ),
                       IconButton(
                         icon: Icon(
                           widget.isDark
@@ -233,6 +264,13 @@ class _GameplayScreenState extends State<GameplayScreen> {
                   ),
                 ],
               ),
+            ),
+
+            // Tutorial guidance banner
+            TutorialBanner(
+              level: widget.session.level,
+              board: widget.session.currentBoard,
+              onOpenHelp: () => HowToPlayDialog.show(context),
             ),
 
             // Puzzle Board Viewport
@@ -259,7 +297,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
             // Bottom Action Bar
             Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -268,10 +306,11 @@ class _GameplayScreenState extends State<GameplayScreen> {
                       foregroundColor: palette.textPrimary,
                       side: BorderSide(color: palette.surfaceSubtle),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 18.0, vertical: 12.0),
+                          horizontal: 14.0, vertical: 12.0),
                     ),
                     onPressed: widget.session.canUndo
                         ? () {
+                            HapticFeedback.selectionClick();
                             widget.session.undo();
                           }
                         : null,
@@ -283,14 +322,26 @@ class _GameplayScreenState extends State<GameplayScreen> {
                       foregroundColor: palette.textPrimary,
                       side: BorderSide(color: palette.surfaceSubtle),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 18.0, vertical: 12.0),
+                          horizontal: 14.0, vertical: 12.0),
                     ),
                     onPressed: () {
+                      HapticFeedback.selectionClick();
                       widget.session.reset();
                       _hasShownSolvedDialog = false;
                     },
                     icon: const Icon(Icons.refresh_rounded, size: 20.0),
                     label: const Text('Reset'),
+                  ),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: palette.textPrimary,
+                      side: BorderSide(color: palette.surfaceSubtle),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14.0, vertical: 12.0),
+                    ),
+                    onPressed: () => HowToPlayDialog.show(context),
+                    icon: const Icon(Icons.menu_book_rounded, size: 20.0),
+                    label: const Text('Rules'),
                   ),
                 ],
               ),

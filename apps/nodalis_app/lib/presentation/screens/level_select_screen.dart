@@ -4,6 +4,7 @@ import 'package:nodalis_ui/nodalis_ui.dart';
 import '../../content/level_repository.dart';
 import '../../session/game_session.dart';
 import '../../session/progress_repository.dart';
+import '../dialogs/how_to_play_dialog.dart';
 import 'gameplay_screen.dart';
 
 /// Chapter level browser displaying progression cards, unlock states, and completion marks.
@@ -64,6 +65,14 @@ class LevelSelectScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.help_outline_rounded,
+                      color: palette.textPrimary,
+                    ),
+                    tooltip: 'How to Play',
+                    onPressed: () => HowToPlayDialog.show(context),
                   ),
                   IconButton(
                     icon: Icon(
