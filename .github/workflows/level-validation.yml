@@ -1,0 +1,38 @@
+name: Level Validation
+
+on:
+  push:
+    paths:
+      - 'levels/**'
+      - 'tools/nodalis_cli/**'
+      - 'packages/nodalis_level_format/**'
+      - 'packages/nodalis_domain/**'
+  pull_request:
+    paths:
+      - 'levels/**'
+      - 'tools/nodalis_cli/**'
+      - 'packages/nodalis_level_format/**'
+      - 'packages/nodalis_domain/**'
+  schedule:
+    - cron: '0 3 * * *' # Nightly at 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-levels-nightly:
+    name: Verify All Puzzle Levels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Pub Get
+        run: dart pub get
+
+      - name: Run Level Validator CLI
+        run: dart run tools/nodalis_cli/bin/nodalis.dart validate-all --dir=levels/

@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  static-analysis:
+    name: Lint & Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Bootstrap Workspace Dependencies
+        run: dart pub get
+
+      - name: Verify Code Formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Run Static Analyzer
+        run: dart analyze --fatal-infos
+
+  unit-and-domain-tests:
+    name: Domain & Level Format Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Pub Get
+        run: dart pub get
+
+      - name: Run Domain & Format Tests
+        run: dart test packages/nodalis_domain packages/nodalis_level_format
+
+  validate-levels:
+    name: Headless Level Content Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Pub Get
+        run: dart pub get
+
+      - name: Run Level Validator CLI
+        run: dart run tools/nodalis_cli/bin/nodalis.dart validate-all --dir=levels/

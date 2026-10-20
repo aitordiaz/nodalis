@@ -1,0 +1,16 @@
+name: nodalis_level_format
+description: "JSON schema validation, models, and serialization for Nodalis levels."
+version: 0.1.0
+publish_to: "none"
+
+environment:
+  sdk: "^3.5.0"
+
+resolution: workspace
+
+dependencies:
+  meta: ^1.15.0
+  nodalis_domain:
+
+dev_dependencies:
+  test: ^1.25.0

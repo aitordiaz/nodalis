@@ -1,0 +1,15 @@
+name: nodalis_domain
+description: "Core puzzle domain rules, immutable entities, and deterministic state transitions for Nodalis."
+version: 0.1.0
+publish_to: "none"
+
+environment:
+  sdk: "^3.5.0"
+
+resolution: workspace
+
+dependencies:
+  meta: ^1.15.0
+
+dev_dependencies:
+  test: ^1.25.0

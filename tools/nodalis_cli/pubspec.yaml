@@ -1,0 +1,19 @@
+name: nodalis_cli
+description: "Developer CLI for headless level validation, solver benchmarking, and linting."
+version: 0.1.0
+publish_to: "none"
+
+environment:
+  sdk: "^3.5.0"
+
+resolution: workspace
+
+dependencies:
+  args: ^2.5.0
+  meta: ^1.15.0
+  nodalis_domain:
+  nodalis_level_format:
+  nodalis_solver:
+
+dev_dependencies:
+  test: ^1.25.0

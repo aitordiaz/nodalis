@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NodalisLevel",
+  "description": "Schema definition for Nodalis handcrafted and generated puzzle levels",
+  "type": "object",
+  "required": ["id", "version", "chapterId", "indexInChapter", "metadata", "grid", "islands"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+    "version": { "type": "integer", "minimum": 1 },
+    "chapterId": { "type": "integer", "minimum": 1 },
+    "indexInChapter": { "type": "integer", "minimum": 1 },
+    "metadata": {
+      "type": "object",
+      "required": ["titleKey", "author", "difficultyTier", "estimatedSolveTimeSeconds", "parMoves", "mechanics"],
+      "properties": {
+        "titleKey": { "type": "string" },
+        "author": { "type": "string" },
+        "difficultyTier": {
+          "type": "string",
+          "enum": ["introductory", "easy", "medium", "hard", "master"]
+        },
+        "estimatedSolveTimeSeconds": { "type": "integer", "minimum": 5 },
+        "parMoves": { "type": "integer", "minimum": 1 },
+        "mechanics": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "grid": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 3, "maximum": 25 },
+        "height": { "type": "integer", "minimum": 3, "maximum": 25 }
+      }
+    },
+    "islands": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "x", "y", "capacity"],
+        "properties": {
+          "id": { "type": "integer", "minimum": 1 },
+          "x": { "type": "integer", "minimum": 0 },
+          "y": { "type": "integer", "minimum": 0 },
+          "capacity": { "type": "integer", "minimum": 1, "maximum": 8 }
+        }
+      }
+    },
+    "tutorial": {
+      "type": "object",
+      "properties": {
+        "hasInteractiveTutorial": { "type": "boolean" },
+        "hintTriggers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["triggerCondition", "semanticTextKey", "highlightIslandIds"],
+            "properties": {
+              "triggerCondition": { "type": "string" },
+              "semanticTextKey": { "type": "string" },
+              "highlightIslandIds": {
+                "type": "array",
+                "items": { "type": "integer" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "properties": {
+        "solutionHash": { "type": "string" },
+        "uniquenessVerified": { "type": "boolean" },
+        "deductionDepth": { "type": "integer" }
+      }
+    }
+  }
+}

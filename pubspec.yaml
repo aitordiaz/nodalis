@@ -1,0 +1,16 @@
+name: nodalis_workspace
+description: "Nodalis logic puzzle game workspace root"
+publish_to: "none"
+
+environment:
+  sdk: "^3.5.0"
+
+workspace:
+  - packages/nodalis_domain
+  - packages/nodalis_level_format
+  - packages/nodalis_solver
+  - tools/nodalis_cli
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.25.0

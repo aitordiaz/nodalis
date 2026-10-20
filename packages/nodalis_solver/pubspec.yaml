@@ -1,0 +1,17 @@
+name: nodalis_solver
+description: "Constraint satisfaction, uniqueness verification, and hint deduction for Nodalis."
+version: 0.1.0
+publish_to: "none"
+
+environment:
+  sdk: "^3.5.0"
+
+resolution: workspace
+
+dependencies:
+  meta: ^1.15.0
+  nodalis_domain:
+  nodalis_level_format:
+
+dev_dependencies:
+  test: ^1.25.0
