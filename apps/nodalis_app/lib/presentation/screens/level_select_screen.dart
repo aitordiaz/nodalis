@@ -133,9 +133,7 @@ class LevelSelectScreen extends StatelessWidget {
   }) {
     final cardColor = isCompleted
         ? palette.islandSatisfiedFill
-        : (isUnlocked
-            ? palette.surface
-            : palette.surfaceSubtle.withAlpha(128));
+        : (isUnlocked ? palette.surface : palette.surfaceSubtle.withAlpha(128));
 
     final borderColor = isCompleted
         ? palette.islandSatisfiedStroke
