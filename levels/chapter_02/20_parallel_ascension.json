@@ -1,0 +1,88 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch02_10_parallel_ascension",
+  "version": 1,
+  "chapterId": 2,
+  "indexInChapter": 10,
+  "metadata": {
+    "titleKey": "level_02_10_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "hard",
+    "estimatedSolveTimeSeconds": 200,
+    "parMoves": 14,
+    "mechanics": [
+      "parallel_paths",
+      "grand_finale",
+      "double_bridge"
+    ]
+  },
+  "grid": {
+    "width": 8,
+    "height": 8
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 1,
+      "capacity": 3
+    },
+    {
+      "id": 2,
+      "x": 3,
+      "y": 1,
+      "capacity": 6
+    },
+    {
+      "id": 3,
+      "x": 6,
+      "y": 1,
+      "capacity": 4
+    },
+    {
+      "id": 4,
+      "x": 1,
+      "y": 4,
+      "capacity": 5
+    },
+    {
+      "id": 5,
+      "x": 3,
+      "y": 4,
+      "capacity": 8
+    },
+    {
+      "id": 6,
+      "x": 6,
+      "y": 4,
+      "capacity": 5
+    },
+    {
+      "id": 7,
+      "x": 1,
+      "y": 6,
+      "capacity": 4
+    },
+    {
+      "id": 8,
+      "x": 3,
+      "y": 6,
+      "capacity": 6
+    },
+    {
+      "id": 9,
+      "x": 6,
+      "y": 6,
+      "capacity": 3
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "0a68886bb83d3fd0046b60fd11f9783418cac35ccf47d627c07568694101b490",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

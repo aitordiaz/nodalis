@@ -1,0 +1,69 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch02_01_twin_crossings",
+  "version": 1,
+  "chapterId": 2,
+  "indexInChapter": 1,
+  "metadata": {
+    "titleKey": "level_02_01_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "easy",
+    "estimatedSolveTimeSeconds": 60,
+    "parMoves": 6,
+    "mechanics": [
+      "parallel_paths",
+      "double_bridge"
+    ]
+  },
+  "grid": {
+    "width": 6,
+    "height": 6
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 1,
+      "capacity": 1
+    },
+    {
+      "id": 2,
+      "x": 4,
+      "y": 1,
+      "capacity": 1
+    },
+    {
+      "id": 3,
+      "x": 1,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 4,
+      "x": 4,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 5,
+      "x": 1,
+      "y": 5,
+      "capacity": 2
+    },
+    {
+      "id": 6,
+      "x": 4,
+      "y": 5,
+      "capacity": 2
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "7ba6f170dcc5286ed8365cee9e0aff6085c3d82c7908aa2b4db0d3601b0817cf",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

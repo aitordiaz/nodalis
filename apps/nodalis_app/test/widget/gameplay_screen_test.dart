@@ -79,6 +79,107 @@ void main() {
       // Level 2 is unlocked (no lock icon!)
       expect(find.byIcon(Icons.lock_outline_rounded), findsNothing);
     });
+
+    testWidgets('undo and redo restore and advance board state in gameplay screen',
+        (tester) async {
+      await tester.binding.setSurfaceSize(const Size(600, 900));
+
+      // Unlock level 2
+      progressRepo.recordCompletion('ch01_01_first_steps', 2);
+
+      await tester.pumpWidget(NodalisApp(
+        levelRepository: levelRepo,
+        progressRepository: progressRepo,
+      ));
+      await tester.pumpAndSettle();
+
+      // Enter Level 2 (where connecting 1-2 does not immediately solve the puzzle)
+      await tester.tap(find.text('2'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Level 2'), findsOneWidget);
+      expect(find.text('Undo'), findsOneWidget);
+      expect(find.text('Redo'), findsOneWidget);
+      expect(find.text('Reset'), findsOneWidget);
+
+      final undoButtonFinder = find.ancestor(
+        of: find.text('Undo'),
+        matching: find.byWidgetPredicate((w) => w is ButtonStyleButton),
+      );
+      final redoButtonFinder = find.ancestor(
+        of: find.text('Redo'),
+        matching: find.byWidgetPredicate((w) => w is ButtonStyleButton),
+      );
+
+      expect(tester.widget<ButtonStyleButton>(undoButtonFinder).enabled, isFalse);
+      expect(tester.widget<ButtonStyleButton>(redoButtonFinder).enabled, isFalse);
+
+      // Connect islands 1 and 2 (row 2 col 2 to row 2 col 4)
+      await tester.tap(
+        find.bySemanticsLabel(RegExp(r'Island at row 2, column 2\.')),
+        warnIfMissed: false,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.bySemanticsLabel(RegExp(r'Island at row 2, column 4\.')),
+        warnIfMissed: false,
+      );
+      await tester.pumpAndSettle();
+
+      // Undo is enabled
+      expect(tester.widget<ButtonStyleButton>(undoButtonFinder).enabled, isTrue);
+      await tester.tap(undoButtonFinder);
+      await tester.pumpAndSettle();
+
+      // Redo is now enabled!
+      expect(tester.widget<ButtonStyleButton>(redoButtonFinder).enabled, isTrue);
+      await tester.tap(redoButtonFinder);
+      await tester.pumpAndSettle();
+
+      // Redo restored the connection, undo is enabled again
+      expect(tester.widget<ButtonStyleButton>(undoButtonFinder).enabled, isTrue);
+    });
+
+    testWidgets('tapping hint button opens deductive hint dialog with progressive stages',
+        (tester) async {
+      await tester.binding.setSurfaceSize(const Size(600, 900));
+
+      await tester.pumpWidget(NodalisApp(
+        levelRepository: levelRepo,
+        progressRepository: progressRepo,
+      ));
+      await tester.pumpAndSettle();
+
+      // Enter Level 2
+      await tester.tap(find.text('1'));
+      await tester.pumpAndSettle();
+
+      // Tap Hint button
+      await tester.tap(find.byIcon(Icons.lightbulb_outline_rounded));
+      await tester.pumpAndSettle();
+
+      // Verify Deductive Hint Dialog opened
+      expect(find.text('Logical Hint'), findsOneWidget);
+      expect(find.text('NUDGE'), findsOneWidget);
+      expect(find.text('Explain the Logic (Insight)'), findsOneWidget);
+
+      // Tap Explain the Logic
+      await tester.tap(find.text('Explain the Logic (Insight)'));
+      await tester.pumpAndSettle();
+      expect(find.text('INSIGHT'), findsOneWidget);
+      expect(find.text('Show Exact Move'), findsOneWidget);
+
+      // Tap Show Exact Move
+      await tester.tap(find.text('Show Exact Move'));
+      await tester.pumpAndSettle();
+      expect(find.text('ACTION'), findsOneWidget);
+      expect(find.text('Apply Step'), findsOneWidget);
+
+      // Close hint
+      await tester.tap(find.byIcon(Icons.close_rounded));
+      await tester.pumpAndSettle();
+      expect(find.text('Logical Hint'), findsNothing);
+    });
   });
 }
 

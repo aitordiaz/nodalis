@@ -22,13 +22,39 @@ class LevelRepository {
     '10_chapter_finale.json',
   ];
 
+  static const List<String> _chapter2FileNames = [
+    '11_twin_crossings.json',
+    '12_ladder_logic.json',
+    '13_ring_road.json',
+    '14_the_hourglass.json',
+    '15_checkerboard.json',
+    '16_serpentine.json',
+    '17_diamond_lattice.json',
+    '18_narrow_strait.json',
+    '19_the_fortress.json',
+    '20_parallel_ascension.json',
+  ];
+
+  List<int> get chapterIds => _levelsByChapter.keys.toList()..sort();
+
+  String getChapterTitle(int chapterId) {
+    return switch (chapterId) {
+      1 => 'First Connections',
+      2 => 'Parallel Paths',
+      _ => 'Chapter $chapterId',
+    };
+  }
+
+  int get totalLevels => _levelsById.length;
+
   /// Loads all bundled levels into memory from asset bundle.
   Future<void> loadBundledLevels([AssetBundle? bundle]) async {
     final assetBundle = bundle ?? rootBundle;
     _levelsById.clear();
     _levelsByChapter.clear();
 
-    for (final fileName in _chapter1FileNames) {
+    final allFileNames = [..._chapter1FileNames, ..._chapter2FileNames];
+    for (final fileName in allFileNames) {
       final jsonString =
           await assetBundle.loadString('assets/levels/$fileName');
       final level = LevelParser.parseJson(jsonString);

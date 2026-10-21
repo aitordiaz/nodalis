@@ -1,0 +1,75 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch02_06_serpentine",
+  "version": 1,
+  "chapterId": 2,
+  "indexInChapter": 6,
+  "metadata": {
+    "titleKey": "level_02_06_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "medium",
+    "estimatedSolveTimeSeconds": 130,
+    "parMoves": 9,
+    "mechanics": [
+      "multi_step_deduction",
+      "double_bridge"
+    ]
+  },
+  "grid": {
+    "width": 7,
+    "height": 7
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 1,
+      "capacity": 1
+    },
+    {
+      "id": 2,
+      "x": 4,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 4,
+      "y": 3,
+      "capacity": 5
+    },
+    {
+      "id": 4,
+      "x": 2,
+      "y": 3,
+      "capacity": 4
+    },
+    {
+      "id": 5,
+      "x": 2,
+      "y": 5,
+      "capacity": 3
+    },
+    {
+      "id": 6,
+      "x": 5,
+      "y": 5,
+      "capacity": 3
+    },
+    {
+      "id": 7,
+      "x": 5,
+      "y": 3,
+      "capacity": 4
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "14c6a0ebeffbf15435c41f956ff5223a73ee812754daaee47941724ea5a8fa27",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

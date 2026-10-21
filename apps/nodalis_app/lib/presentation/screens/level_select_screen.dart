@@ -8,7 +8,7 @@ import '../dialogs/how_to_play_dialog.dart';
 import 'gameplay_screen.dart';
 
 /// Chapter level browser displaying progression cards, unlock states, and completion marks.
-class LevelSelectScreen extends StatelessWidget {
+class LevelSelectScreen extends StatefulWidget {
   final LevelRepository levelRepository;
   final ProgressRepository progressRepository;
   final VoidCallback onToggleTheme;
@@ -23,10 +23,30 @@ class LevelSelectScreen extends StatelessWidget {
   });
 
   @override
+  State<LevelSelectScreen> createState() => _LevelSelectScreenState();
+}
+
+class _LevelSelectScreenState extends State<LevelSelectScreen> {
+  int _selectedChapter = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    final lastPlayed = widget.progressRepository.lastPlayedLevelId;
+    if (lastPlayed != null && lastPlayed.startsWith('ch02_')) {
+      _selectedChapter = 2;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = NodalisTheme.of(context);
     final palette = theme.palette;
-    final chapter1Levels = levelRepository.getChapterLevels(1);
+    final currentChapterLevels =
+        widget.levelRepository.getChapterLevels(_selectedChapter);
+    final prevChapterLevels = _selectedChapter > 1
+        ? widget.levelRepository.getChapterLevels(_selectedChapter - 1)
+        : null;
 
     return Scaffold(
       backgroundColor: palette.background,
@@ -37,7 +57,7 @@ class LevelSelectScreen extends StatelessWidget {
             // Top Bar
             Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 14.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -56,7 +76,7 @@ class LevelSelectScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4.0),
                         Text(
-                          'Chapter 1: First Connections',
+                          'Chapter $_selectedChapter: ${widget.levelRepository.getChapterTitle(_selectedChapter)}',
                           style: TextStyle(
                             color: palette.textPrimary,
                             fontSize: 22.0,
@@ -76,34 +96,112 @@ class LevelSelectScreen extends StatelessWidget {
                   ),
                   IconButton(
                     icon: Icon(
-                      isDark
+                      widget.isDark
                           ? Icons.light_mode_outlined
                           : Icons.dark_mode_outlined,
                       color: palette.textPrimary,
                     ),
                     tooltip: 'Toggle Theme',
-                    onPressed: onToggleTheme,
+                    onPressed: widget.onToggleTheme,
                   ),
                 ],
               ),
             ),
 
+            // Chapter Selector Pills
+            if (widget.levelRepository.chapterIds.length > 1)
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: widget.levelRepository.chapterIds.map((chId) {
+                      final isSelected = chId == _selectedChapter;
+                      final chLevels =
+                          widget.levelRepository.getChapterLevels(chId);
+                      final completedCount = chLevels
+                          .where((l) =>
+                              widget.progressRepository.isLevelCompleted(l.id))
+                          .length;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 10.0),
+                        child: InkWell(
+                          onTap: () {
+                            setState(() => _selectedChapter = chId);
+                          },
+                          borderRadius: BorderRadius.circular(
+                              NodalisDimensions.radiusMedium),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14.0, vertical: 8.0),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? palette.islandSelectedStroke
+                                      .withOpacity(0.12)
+                                  : palette.surface,
+                              borderRadius: BorderRadius.circular(
+                                  NodalisDimensions.radiusMedium),
+                              border: Border.all(
+                                color: isSelected
+                                    ? palette.islandSelectedStroke
+                                    : palette.surfaceSubtle,
+                                width: isSelected ? 1.5 : 1.0,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  'Chapter $chId',
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? palette.islandSelectedStroke
+                                        : palette.textPrimary,
+                                    fontSize: 13.0,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(width: 6.0),
+                                Text(
+                                  '$completedCount/${chLevels.length}',
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? palette.islandSelectedStroke
+                                        : palette.textMuted,
+                                    fontSize: 11.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+
             // Level Cards Grid
             Expanded(
               child: AnimatedBuilder(
-                animation: progressRepository,
+                animation: widget.progressRepository,
                 builder: (context, _) {
-                  final nextLevel = progressRepository
-                      .getNextRecommendedLevel(chapter1Levels);
+                  final nextLevel = widget.progressRepository
+                      .getNextRecommendedLevel(currentChapterLevels);
                   final hasProgress =
-                      progressRepository.completedLevelIds.isNotEmpty;
+                      widget.progressRepository.completedLevelIds.isNotEmpty;
 
                   return Column(
                     children: [
                       if (hasProgress && nextLevel != null)
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 20.0, vertical: 4.0),
+                              horizontal: 20.0, vertical: 6.0),
                           child: InkWell(
                             onTap: () => _openLevel(context, nextLevel),
                             borderRadius: BorderRadius.circular(
@@ -184,15 +282,16 @@ class LevelSelectScreen extends StatelessWidget {
                             crossAxisSpacing: 16.0,
                             childAspectRatio: 1.15,
                           ),
-                          itemCount: chapter1Levels.length,
+                          itemCount: currentChapterLevels.length,
                           itemBuilder: (context, index) {
-                            final level = chapter1Levels[index];
-                            final isUnlocked = progressRepository
-                                .isLevelUnlocked(level, chapter1Levels);
-                            final isCompleted =
-                                progressRepository.isLevelCompleted(level.id);
-                            final bestMoves =
-                                progressRepository.getBestMoves(level.id);
+                            final level = currentChapterLevels[index];
+                            final isUnlocked = widget.progressRepository
+                                .isLevelUnlocked(level, currentChapterLevels,
+                                    previousChapterLevels: prevChapterLevels);
+                            final isCompleted = widget.progressRepository
+                                .isLevelCompleted(level.id);
+                            final bestMoves = widget.progressRepository
+                                .getBestMoves(level.id);
 
                             return _buildLevelCard(
                               context: context,
@@ -217,17 +316,17 @@ class LevelSelectScreen extends StatelessWidget {
   }
 
   void _openLevel(BuildContext context, LevelDefinition level) {
-    progressRepository.setLastPlayed(level.id);
+    widget.progressRepository.setLastPlayed(level.id);
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (context) {
           final session = GameSession(level: level);
           return GameplayScreen(
             session: session,
-            progressRepository: progressRepository,
-            levelRepository: levelRepository,
-            onToggleTheme: onToggleTheme,
-            isDark: isDark,
+            progressRepository: widget.progressRepository,
+            levelRepository: widget.levelRepository,
+            onToggleTheme: widget.onToggleTheme,
+            isDark: widget.isDark,
           );
         },
       ),

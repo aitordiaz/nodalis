@@ -1,0 +1,69 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch02_03_ring_road",
+  "version": 1,
+  "chapterId": 2,
+  "indexInChapter": 3,
+  "metadata": {
+    "titleKey": "level_02_03_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "easy",
+    "estimatedSolveTimeSeconds": 90,
+    "parMoves": 7,
+    "mechanics": [
+      "loop_avoidance",
+      "saturation"
+    ]
+  },
+  "grid": {
+    "width": 6,
+    "height": 6
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 1,
+      "capacity": 3
+    },
+    {
+      "id": 2,
+      "x": 4,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 1,
+      "y": 4,
+      "capacity": 3
+    },
+    {
+      "id": 4,
+      "x": 4,
+      "y": 4,
+      "capacity": 3
+    },
+    {
+      "id": 5,
+      "x": 2,
+      "y": 2,
+      "capacity": 2
+    },
+    {
+      "id": 6,
+      "x": 2,
+      "y": 4,
+      "capacity": 5
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "3a7fccb7761e5220c5dcdd9e906f4012810f82bbd292cc103ee38b996aa4b52b",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

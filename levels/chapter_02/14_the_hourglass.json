@@ -1,0 +1,75 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch02_04_the_hourglass",
+  "version": 1,
+  "chapterId": 2,
+  "indexInChapter": 4,
+  "metadata": {
+    "titleKey": "level_02_04_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "medium",
+    "estimatedSolveTimeSeconds": 100,
+    "parMoves": 8,
+    "mechanics": [
+      "pinch_point",
+      "double_bridge"
+    ]
+  },
+  "grid": {
+    "width": 7,
+    "height": 7
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 2,
+      "x": 5,
+      "y": 1,
+      "capacity": 1
+    },
+    {
+      "id": 3,
+      "x": 3,
+      "y": 1,
+      "capacity": 5
+    },
+    {
+      "id": 4,
+      "x": 3,
+      "y": 3,
+      "capacity": 4
+    },
+    {
+      "id": 5,
+      "x": 3,
+      "y": 5,
+      "capacity": 5
+    },
+    {
+      "id": 6,
+      "x": 1,
+      "y": 5,
+      "capacity": 1
+    },
+    {
+      "id": 7,
+      "x": 5,
+      "y": 5,
+      "capacity": 2
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "a3f33ab153d7a064eaabfde7a2714bc470630760f4c41789e092a3424bf1d1c3",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

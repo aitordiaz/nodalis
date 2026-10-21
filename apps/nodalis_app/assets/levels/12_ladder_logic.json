@@ -1,0 +1,75 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch02_02_ladder_logic",
+  "version": 1,
+  "chapterId": 2,
+  "indexInChapter": 2,
+  "metadata": {
+    "titleKey": "level_02_02_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "easy",
+    "estimatedSolveTimeSeconds": 75,
+    "parMoves": 7,
+    "mechanics": [
+      "parallel_paths",
+      "pigeonhole"
+    ]
+  },
+  "grid": {
+    "width": 6,
+    "height": 6
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 2,
+      "x": 4,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 1,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 4,
+      "x": 4,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 5,
+      "x": 1,
+      "y": 5,
+      "capacity": 2
+    },
+    {
+      "id": 6,
+      "x": 4,
+      "y": 5,
+      "capacity": 2
+    },
+    {
+      "id": 7,
+      "x": 2,
+      "y": 5,
+      "capacity": 2
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "712ff9207e2b9206f8e267da5fe921139d7fa2c86df120ef5b74839e9c94615a",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

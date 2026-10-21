@@ -17,6 +17,7 @@ class GameSession extends ChangeNotifier {
   Board get currentBoard => _currentBoard;
   int get moveCount => _moveCount;
   bool get canUndo => _undoStack.canUndo;
+  bool get canRedo => _undoStack.canRedo;
   bool get isSolved => _currentBoard.isSolved;
 
   /// Dispatches an action to the domain engine, tracking undo history on success.
@@ -43,10 +44,21 @@ class GameSession extends ChangeNotifier {
 
   /// Restores the immediately preceding board state.
   bool undo() {
-    final previous = _undoStack.pop();
+    final previous = _undoStack.undo(_currentBoard);
     if (previous == null) return false;
 
     _currentBoard = previous;
+    _moveCount++;
+    notifyListeners();
+    return true;
+  }
+
+  /// Redoes the immediately following board state.
+  bool redo() {
+    final next = _undoStack.redo(_currentBoard);
+    if (next == null) return false;
+
+    _currentBoard = next;
     _moveCount++;
     notifyListeners();
     return true;

@@ -1,0 +1,81 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch02_05_checkerboard",
+  "version": 1,
+  "chapterId": 2,
+  "indexInChapter": 5,
+  "metadata": {
+    "titleKey": "level_02_05_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "medium",
+    "estimatedSolveTimeSeconds": 120,
+    "parMoves": 9,
+    "mechanics": [
+      "parallel_paths",
+      "saturation"
+    ]
+  },
+  "grid": {
+    "width": 7,
+    "height": 7
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 1,
+      "capacity": 3
+    },
+    {
+      "id": 2,
+      "x": 3,
+      "y": 1,
+      "capacity": 3
+    },
+    {
+      "id": 3,
+      "x": 5,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 4,
+      "x": 1,
+      "y": 3,
+      "capacity": 3
+    },
+    {
+      "id": 5,
+      "x": 5,
+      "y": 3,
+      "capacity": 3
+    },
+    {
+      "id": 6,
+      "x": 1,
+      "y": 5,
+      "capacity": 2
+    },
+    {
+      "id": 7,
+      "x": 3,
+      "y": 5,
+      "capacity": 4
+    },
+    {
+      "id": 8,
+      "x": 5,
+      "y": 5,
+      "capacity": 2
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "52842b73a8e308daac87e2b300097897193a76266665df3566247e4c190737e7",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

@@ -44,10 +44,19 @@ class ProgressRepository extends ChangeNotifier {
   int? getBestMoves(String levelId) => _bestMoves[levelId];
 
   /// A level is unlocked if it is the first level of Chapter 1,
+  /// or if the first level of Chapter N where Chapter N-1 is completed,
   /// or if the preceding level in the chapter has been completed.
   bool isLevelUnlocked(
-      LevelDefinition level, List<LevelDefinition> chapterLevels) {
+      LevelDefinition level, List<LevelDefinition> chapterLevels,
+      {List<LevelDefinition>? previousChapterLevels}) {
     if (level.chapterId == 1 && level.indexInChapter == 1) return true;
+
+    if (level.indexInChapter == 1) {
+      if (previousChapterLevels == null || previousChapterLevels.isEmpty) {
+        return true;
+      }
+      return isLevelCompleted(previousChapterLevels.last.id);
+    }
 
     final prevIndex = level.indexInChapter - 1;
     final prevLevel = chapterLevels.where((l) => l.indexInChapter == prevIndex);

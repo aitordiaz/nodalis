@@ -1,0 +1,75 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch02_07_diamond_lattice",
+  "version": 1,
+  "chapterId": 2,
+  "indexInChapter": 7,
+  "metadata": {
+    "titleKey": "level_02_07_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "medium",
+    "estimatedSolveTimeSeconds": 140,
+    "parMoves": 9,
+    "mechanics": [
+      "pigeonhole",
+      "symmetry"
+    ]
+  },
+  "grid": {
+    "width": 7,
+    "height": 7
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 3,
+      "y": 1,
+      "capacity": 1
+    },
+    {
+      "id": 2,
+      "x": 1,
+      "y": 3,
+      "capacity": 3
+    },
+    {
+      "id": 3,
+      "x": 3,
+      "y": 3,
+      "capacity": 5
+    },
+    {
+      "id": 4,
+      "x": 5,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 5,
+      "x": 3,
+      "y": 5,
+      "capacity": 6
+    },
+    {
+      "id": 6,
+      "x": 1,
+      "y": 5,
+      "capacity": 4
+    },
+    {
+      "id": 7,
+      "x": 5,
+      "y": 5,
+      "capacity": 3
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "91679f946c59dd99e358de7cdfdb4af3810343841b32bd7b904436fc24cdb86c",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

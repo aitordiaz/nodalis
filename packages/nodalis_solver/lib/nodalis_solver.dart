@@ -2,6 +2,8 @@ import 'package:meta/meta.dart';
 import 'package:nodalis_domain/nodalis_domain.dart';
 import 'package:nodalis_level_format/nodalis_level_format.dart';
 
+export 'src/deduction/deductive_engine.dart';
+export 'src/deduction/deductive_hint.dart';
 export 'src/search/backtracking_solver.dart';
 export 'src/validator/level_validator.dart';
 

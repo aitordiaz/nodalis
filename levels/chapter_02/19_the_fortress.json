@@ -1,0 +1,81 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch02_09_the_fortress",
+  "version": 1,
+  "chapterId": 2,
+  "indexInChapter": 9,
+  "metadata": {
+    "titleKey": "level_02_09_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "hard",
+    "estimatedSolveTimeSeconds": 180,
+    "parMoves": 11,
+    "mechanics": [
+      "corner_lock",
+      "multi_step_deduction"
+    ]
+  },
+  "grid": {
+    "width": 8,
+    "height": 8
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 1,
+      "capacity": 3
+    },
+    {
+      "id": 2,
+      "x": 6,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 1,
+      "y": 4,
+      "capacity": 4
+    },
+    {
+      "id": 4,
+      "x": 4,
+      "y": 4,
+      "capacity": 5
+    },
+    {
+      "id": 5,
+      "x": 6,
+      "y": 4,
+      "capacity": 4
+    },
+    {
+      "id": 6,
+      "x": 1,
+      "y": 6,
+      "capacity": 3
+    },
+    {
+      "id": 7,
+      "x": 4,
+      "y": 6,
+      "capacity": 6
+    },
+    {
+      "id": 8,
+      "x": 6,
+      "y": 6,
+      "capacity": 3
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "c6a77416da08e1e0d0ca601c544861bbd298b15b0868ebd463d81e9fd009eb84",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}
