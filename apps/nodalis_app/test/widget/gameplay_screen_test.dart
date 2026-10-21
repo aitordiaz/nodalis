@@ -56,6 +56,7 @@ void main() {
         find.bySemanticsLabel(RegExp(r'Island at row 3, column 4\.')),
         warnIfMissed: false,
       );
+      await tester.pump(const Duration(milliseconds: 600));
       await tester.pumpAndSettle();
 
       // Solved dialog appears

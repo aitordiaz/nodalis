@@ -97,6 +97,14 @@ final class BoardGeometry {
       final posB = islandPositions[bridge.islandBId];
       if (posA == null || posB == null) continue;
 
+      // Do not match bridge if the tap is within the island interaction zone of either endpoint
+      final distA = (localPosition - posA).distance;
+      final distB = (localPosition - posB).distance;
+      if (distA <= NodalisDimensions.islandHitRadius + 6.0 ||
+          distB <= NodalisDimensions.islandHitRadius + 6.0) {
+        continue;
+      }
+
       if (distanceToSegment(localPosition, posA, posB) <= hitThreshold) {
         return (fromId: bridge.islandAId, toId: bridge.islandBId);
       }

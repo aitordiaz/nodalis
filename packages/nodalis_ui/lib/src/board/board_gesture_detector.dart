@@ -64,22 +64,7 @@ class _BoardGestureDetectorState extends State<BoardGestureDetector> {
     final selectedId = widget.viewModel.selectedIslandId;
 
     if (tappedId == null) {
-      // Check if user tapped directly on an existing active bridge
-      final bridgeHit = widget.geometry.hitTestBridge(
-        details.localPosition,
-        widget.viewModel.board.bridges,
-      );
-      if (bridgeHit != null) {
-        widget.onConnect(bridgeHit.fromId, bridgeHit.toId);
-        if (selectedId != null) {
-          widget.onViewModelChanged(
-            widget.viewModel.copyWith(selectedIslandId: () => null),
-          );
-        }
-        return;
-      }
-
-      // 2. If an island was selected, check if user tapped in the corridor toward a valid neighbor
+      // 1. If an island was selected, check if user tapped in the corridor toward a valid neighbor
       if (selectedId != null) {
         final startPos = widget.geometry.islandPositions[selectedId];
         if (startPos != null) {
@@ -106,7 +91,19 @@ class _BoardGestureDetectorState extends State<BoardGestureDetector> {
         widget.onViewModelChanged(
           widget.viewModel.copyWith(selectedIslandId: () => null),
         );
+        return;
       }
+
+      // 2. If no island was selected, check if user tapped directly on an existing active bridge to cycle it
+      final bridgeHit = widget.geometry.hitTestBridge(
+        details.localPosition,
+        widget.viewModel.board.bridges,
+      );
+      if (bridgeHit != null) {
+        widget.onConnect(bridgeHit.fromId, bridgeHit.toId);
+        return;
+      }
+
       return;
     }
 

@@ -61,7 +61,8 @@ class _GameplayScreenState extends State<GameplayScreen> {
         widget.session.level.id,
         widget.session.moveCount,
       );
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
         _showSolvedDialog();
       });
     }
@@ -278,10 +279,14 @@ class _GameplayScreenState extends State<GameplayScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: BoardWidget(
-                  viewModel: _viewModel,
+                  viewModel: _viewModel.copyWith(
+                    board: widget.session.currentBoard,
+                  ),
                   onViewModelChanged: (newVm) {
                     setState(() {
-                      _viewModel = newVm;
+                      _viewModel = newVm.copyWith(
+                        board: widget.session.currentBoard,
+                      );
                     });
                   },
                   onConnect: _handleConnect,
