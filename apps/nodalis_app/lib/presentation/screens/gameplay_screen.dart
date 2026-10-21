@@ -271,7 +271,6 @@ class _GameplayScreenState extends State<GameplayScreen> {
             TutorialBanner(
               level: widget.session.level,
               board: widget.session.currentBoard,
-              onOpenHelp: () => HowToPlayDialog.show(context),
             ),
 
             // Puzzle Board Viewport
@@ -304,49 +303,56 @@ class _GameplayScreenState extends State<GameplayScreen> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: palette.textPrimary,
-                      side: BorderSide(color: palette.surfaceSubtle),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14.0, vertical: 12.0),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: palette.textPrimary,
+                        side: BorderSide(color: palette.surfaceSubtle),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 14.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              NodalisDimensions.radiusMedium),
+                        ),
+                      ),
+                      onPressed: widget.session.canUndo
+                          ? () {
+                              HapticFeedback.selectionClick();
+                              widget.session.undo();
+                            }
+                          : null,
+                      icon: const Icon(Icons.undo_rounded, size: 20.0),
+                      label: const Text(
+                        'Undo',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                     ),
-                    onPressed: widget.session.canUndo
-                        ? () {
-                            HapticFeedback.selectionClick();
-                            widget.session.undo();
-                          }
-                        : null,
-                    icon: const Icon(Icons.undo_rounded, size: 20.0),
-                    label: const Text('Undo'),
                   ),
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: palette.textPrimary,
-                      side: BorderSide(color: palette.surfaceSubtle),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14.0, vertical: 12.0),
+                  const SizedBox(width: 14.0),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: palette.textPrimary,
+                        side: BorderSide(color: palette.surfaceSubtle),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 14.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              NodalisDimensions.radiusMedium),
+                        ),
+                      ),
+                      onPressed: () {
+                        HapticFeedback.selectionClick();
+                        widget.session.reset();
+                        _hasShownSolvedDialog = false;
+                      },
+                      icon: const Icon(Icons.refresh_rounded, size: 20.0),
+                      label: const Text(
+                        'Reset',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                     ),
-                    onPressed: () {
-                      HapticFeedback.selectionClick();
-                      widget.session.reset();
-                      _hasShownSolvedDialog = false;
-                    },
-                    icon: const Icon(Icons.refresh_rounded, size: 20.0),
-                    label: const Text('Reset'),
-                  ),
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: palette.textPrimary,
-                      side: BorderSide(color: palette.surfaceSubtle),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14.0, vertical: 12.0),
-                    ),
-                    onPressed: () => HowToPlayDialog.show(context),
-                    icon: const Icon(Icons.menu_book_rounded, size: 20.0),
-                    label: const Text('Rules'),
                   ),
                 ],
               ),

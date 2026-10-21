@@ -7,13 +7,11 @@ import 'package:nodalis_ui/nodalis_ui.dart';
 class TutorialBanner extends StatelessWidget {
   final LevelDefinition level;
   final Board board;
-  final VoidCallback onOpenHelp;
 
   const TutorialBanner({
     super.key,
     required this.level,
     required this.board,
-    required this.onOpenHelp,
   });
 
   @override
@@ -54,18 +52,6 @@ class TutorialBanner extends StatelessWidget {
                   height: 1.35,
                 ),
               ),
-            ),
-            const SizedBox(width: 6.0),
-            IconButton(
-              icon: Icon(
-                Icons.help_outline_rounded,
-                size: 20.0,
-                color: palette.textSecondary,
-              ),
-              tooltip: 'How to Play',
-              onPressed: onOpenHelp,
-              constraints: const BoxConstraints(),
-              padding: const EdgeInsets.all(4.0),
             ),
           ],
         ),
