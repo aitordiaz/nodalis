@@ -62,7 +62,8 @@ class HowToPlayDialog extends StatelessWidget {
                     ],
                   ),
                   IconButton(
-                    icon: Icon(Icons.close_rounded, color: palette.textSecondary),
+                    icon:
+                        Icon(Icons.close_rounded, color: palette.textSecondary),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -118,8 +119,8 @@ class HowToPlayDialog extends StatelessWidget {
                       padding: const EdgeInsets.all(14.0),
                       decoration: BoxDecoration(
                         color: palette.surfaceSubtle,
-                        borderRadius:
-                            BorderRadius.circular(NodalisDimensions.radiusMedium),
+                        borderRadius: BorderRadius.circular(
+                            NodalisDimensions.radiusMedium),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

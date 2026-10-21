@@ -60,7 +60,14 @@ void main() {
       gridW: 6,
       gridH: 6,
       mechanics: ['parallel_paths', 'double_bridge'],
-      islands: [(1, 1, 1, 1), (2, 4, 1, 1), (3, 1, 3, 2), (4, 4, 3, 2), (5, 1, 5, 2), (6, 4, 5, 2)],
+      islands: [
+        (1, 1, 1, 1),
+        (2, 4, 1, 1),
+        (3, 1, 3, 2),
+        (4, 4, 3, 2),
+        (5, 1, 5, 2),
+        (6, 4, 5, 2)
+      ],
     ),
 
     // Level 12 (Ch 2, Level 2): Ladder Logic
@@ -74,7 +81,15 @@ void main() {
       gridW: 6,
       gridH: 6,
       mechanics: ['parallel_paths', 'pigeonhole'],
-      islands: [(1, 1, 1, 2), (2, 4, 1, 2), (3, 1, 3, 2), (4, 4, 3, 2), (5, 1, 5, 2), (6, 4, 5, 2), (7, 2, 5, 2)],
+      islands: [
+        (1, 1, 1, 2),
+        (2, 4, 1, 2),
+        (3, 1, 3, 2),
+        (4, 4, 3, 2),
+        (5, 1, 5, 2),
+        (6, 4, 5, 2),
+        (7, 2, 5, 2)
+      ],
     ),
 
     // Level 13 (Ch 2, Level 3): Ring Road
@@ -88,7 +103,14 @@ void main() {
       gridW: 6,
       gridH: 6,
       mechanics: ['loop_avoidance', 'saturation'],
-      islands: [(1, 1, 1, 3), (2, 4, 1, 2), (3, 1, 4, 3), (4, 4, 4, 3), (5, 2, 2, 2), (6, 2, 4, 5)],
+      islands: [
+        (1, 1, 1, 3),
+        (2, 4, 1, 2),
+        (3, 1, 4, 3),
+        (4, 4, 4, 3),
+        (5, 2, 2, 2),
+        (6, 2, 4, 5)
+      ],
     ),
 
     // Level 14 (Ch 2, Level 4): The Hourglass
@@ -102,7 +124,15 @@ void main() {
       gridW: 7,
       gridH: 7,
       mechanics: ['pinch_point', 'double_bridge'],
-      islands: [(1, 1, 1, 2), (2, 5, 1, 1), (3, 3, 1, 5), (4, 3, 3, 4), (5, 3, 5, 5), (6, 1, 5, 1), (7, 5, 5, 2)],
+      islands: [
+        (1, 1, 1, 2),
+        (2, 5, 1, 1),
+        (3, 3, 1, 5),
+        (4, 3, 3, 4),
+        (5, 3, 5, 5),
+        (6, 1, 5, 1),
+        (7, 5, 5, 2)
+      ],
     ),
 
     // Level 15 (Ch 2, Level 5): Checkerboard
@@ -116,7 +146,16 @@ void main() {
       gridW: 7,
       gridH: 7,
       mechanics: ['parallel_paths', 'saturation'],
-      islands: [(1, 1, 1, 3), (2, 3, 1, 3), (3, 5, 1, 2), (4, 1, 3, 3), (5, 5, 3, 3), (6, 1, 5, 2), (7, 3, 5, 4), (8, 5, 5, 2)],
+      islands: [
+        (1, 1, 1, 3),
+        (2, 3, 1, 3),
+        (3, 5, 1, 2),
+        (4, 1, 3, 3),
+        (5, 5, 3, 3),
+        (6, 1, 5, 2),
+        (7, 3, 5, 4),
+        (8, 5, 5, 2)
+      ],
     ),
 
     // Level 16 (Ch 2, Level 6): Serpentine
@@ -130,7 +169,15 @@ void main() {
       gridW: 7,
       gridH: 7,
       mechanics: ['multi_step_deduction', 'double_bridge'],
-      islands: [(1, 1, 1, 1), (2, 4, 1, 2), (3, 4, 3, 5), (4, 2, 3, 4), (5, 2, 5, 3), (6, 5, 5, 3), (7, 5, 3, 4)],
+      islands: [
+        (1, 1, 1, 1),
+        (2, 4, 1, 2),
+        (3, 4, 3, 5),
+        (4, 2, 3, 4),
+        (5, 2, 5, 3),
+        (6, 5, 5, 3),
+        (7, 5, 3, 4)
+      ],
     ),
 
     // Level 17 (Ch 2, Level 7): Diamond Lattice
@@ -144,7 +191,15 @@ void main() {
       gridW: 7,
       gridH: 7,
       mechanics: ['pigeonhole', 'symmetry'],
-      islands: [(1, 3, 1, 1), (2, 1, 3, 3), (3, 3, 3, 5), (4, 5, 3, 2), (5, 3, 5, 6), (6, 1, 5, 4), (7, 5, 5, 3)],
+      islands: [
+        (1, 3, 1, 1),
+        (2, 1, 3, 3),
+        (3, 3, 3, 5),
+        (4, 5, 3, 2),
+        (5, 3, 5, 6),
+        (6, 1, 5, 4),
+        (7, 5, 5, 3)
+      ],
     ),
 
     // Level 18 (Ch 2, Level 8): Narrow Strait
@@ -158,7 +213,16 @@ void main() {
       gridW: 8,
       gridH: 6,
       mechanics: ['choke_point', 'isolation_avoidance'],
-      islands: [(1, 1, 1, 3), (2, 3, 1, 6), (3, 6, 1, 4), (4, 1, 4, 3), (5, 3, 4, 5), (6, 6, 4, 4), (7, 4, 1, 6), (8, 4, 4, 5)],
+      islands: [
+        (1, 1, 1, 3),
+        (2, 3, 1, 6),
+        (3, 6, 1, 4),
+        (4, 1, 4, 3),
+        (5, 3, 4, 5),
+        (6, 6, 4, 4),
+        (7, 4, 1, 6),
+        (8, 4, 4, 5)
+      ],
     ),
 
     // Level 19 (Ch 2, Level 9): The Fortress
@@ -172,7 +236,16 @@ void main() {
       gridW: 8,
       gridH: 8,
       mechanics: ['corner_lock', 'multi_step_deduction'],
-      islands: [(1, 1, 1, 3), (2, 6, 1, 2), (3, 1, 4, 4), (4, 4, 4, 5), (5, 6, 4, 4), (6, 1, 6, 3), (7, 4, 6, 6), (8, 6, 6, 3)],
+      islands: [
+        (1, 1, 1, 3),
+        (2, 6, 1, 2),
+        (3, 1, 4, 4),
+        (4, 4, 4, 5),
+        (5, 6, 4, 4),
+        (6, 1, 6, 3),
+        (7, 4, 6, 6),
+        (8, 6, 6, 3)
+      ],
     ),
 
     // Level 20 (Ch 2, Level 10): Parallel Ascension (Finale)
@@ -186,7 +259,17 @@ void main() {
       gridW: 8,
       gridH: 8,
       mechanics: ['parallel_paths', 'grand_finale', 'double_bridge'],
-      islands: [(1, 1, 1, 3), (2, 3, 1, 6), (3, 6, 1, 4), (4, 1, 4, 5), (5, 3, 4, 8), (6, 6, 4, 5), (7, 1, 6, 4), (8, 3, 6, 6), (9, 6, 6, 3)],
+      islands: [
+        (1, 1, 1, 3),
+        (2, 3, 1, 6),
+        (3, 6, 1, 4),
+        (4, 1, 4, 5),
+        (5, 3, 4, 8),
+        (6, 6, 4, 5),
+        (7, 1, 6, 4),
+        (8, 3, 6, 6),
+        (9, 6, 6, 3)
+      ],
     ),
   ];
 
@@ -198,10 +281,12 @@ void main() {
   for (final level in levels) {
     final res = solver.solve(level.toInitialBoard(), maxSolutions: 2);
     if (!res.isUnique) {
-      throw StateError('Level ${level.id} is not unique! Found ${res.solutions.length} solutions');
+      throw StateError(
+          'Level ${level.id} is not unique! Found ${res.solutions.length} solutions');
     }
     final hash = BacktrackingSolver.calculateSolutionHash(res.solutions.first);
-    print('  ✓ Level ${level.indexInChapter} (${level.id}): UNIQUE (hash: ${hash.substring(0, 8)}...)');
+    print(
+        '  ✓ Level ${level.indexInChapter} (${level.id}): UNIQUE (hash: ${hash.substring(0, 8)}...)');
 
     final jsonMap = {
       r'$schema': '../schemas/level.schema.json',
@@ -242,11 +327,14 @@ void main() {
 
     final formattedJson = encoder.convert(jsonMap);
     final numStr = '${level.indexInChapter + 10}';
-    final nameSuffix = level.id.replaceFirst('ch02_${level.indexInChapter < 10 ? '0' : ''}${level.indexInChapter}_', '');
+    final nameSuffix = level.id.replaceFirst(
+        'ch02_${level.indexInChapter < 10 ? '0' : ''}${level.indexInChapter}_',
+        '');
     final fileName = '${numStr}_$nameSuffix.json';
 
     File('levels/chapter_02/$fileName').writeAsStringSync(formattedJson);
-    File('apps/nodalis_app/assets/levels/$fileName').writeAsStringSync(formattedJson);
+    File('apps/nodalis_app/assets/levels/$fileName')
+        .writeAsStringSync(formattedJson);
     print('    -> Saved $fileName');
   }
 

@@ -68,8 +68,8 @@ class _BoardGestureDetectorState extends State<BoardGestureDetector> {
       if (selectedId != null) {
         final startPos = widget.geometry.islandPositions[selectedId];
         if (startPos != null) {
-          final neighbors =
-              widget.viewModel.board.getAvailableOrthogonalNeighbors(selectedId);
+          final neighbors = widget.viewModel.board
+              .getAvailableOrthogonalNeighbors(selectedId);
           for (final neighbor in neighbors) {
             final neighborPos = widget.geometry.islandPositions[neighbor.id];
             if (neighborPos == null) continue;

@@ -111,10 +111,15 @@ void main() {
       expect(hint, isNotNull);
       expect(hint!.category, HintCategory.pigeonhole);
       expect(hint.primaryIslandId, 1);
-      expect(hint.insight, contains('Even if all other neighbors absorb their absolute maximum'));
+      expect(
+          hint.insight,
+          contains(
+              'Even if all other neighbors absorb their absolute maximum'));
     });
 
-    test('deduces isolation avoidance when connecting two 1s would strand a 3rd island', () {
+    test(
+        'deduces isolation avoidance when connecting two 1s would strand a 3rd island',
+        () {
       final board = Board.initial(
         width: 6,
         height: 6,
@@ -128,7 +133,8 @@ void main() {
 
       final hint = engine.evaluateHint(board: board);
       expect(hint, isNotNull);
-      expect(hint!.category, anyOf(HintCategory.saturation, HintCategory.isolationAvoidance));
+      expect(hint!.category,
+          anyOf(HintCategory.saturation, HintCategory.isolationAvoidance));
     });
 
     test('detects stranded island blocked by existing bridges', () {
@@ -157,7 +163,8 @@ void main() {
       expect(hint, isNotNull);
       expect(hint!.isMistake, isTrue);
       expect(hint.category, HintCategory.mistakeCorrection);
-      expect(hint.insight, contains('crossing bridges or satisfied neighbors prevent'));
+      expect(hint.insight,
+          contains('crossing bridges or satisfied neighbors prevent'));
     });
   });
 }

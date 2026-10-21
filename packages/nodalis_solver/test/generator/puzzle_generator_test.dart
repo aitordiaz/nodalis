@@ -29,19 +29,23 @@ void main() {
     });
 
     test('generates deterministically with the same seed', () {
-      final level1 = generator.generate(width: 7, height: 7, islandCount: 7, seed: 999);
-      final level2 = generator.generate(width: 7, height: 7, islandCount: 7, seed: 999);
+      final level1 =
+          generator.generate(width: 7, height: 7, islandCount: 7, seed: 999);
+      final level2 =
+          generator.generate(width: 7, height: 7, islandCount: 7, seed: 999);
 
       expect(level1, isNotNull);
       expect(level2, isNotNull);
       expect(level1!.id, level2!.id);
-      expect(level1.verification?.solutionHash, level2.verification?.solutionHash);
+      expect(
+          level1.verification?.solutionHash, level2.verification?.solutionHash);
       expect(level1.islands.length, level2.islands.length);
 
       for (var i = 0; i < level1.islands.length; i++) {
         expect(level1.islands[i].id, level2.islands[i].id);
         expect(level1.islands[i].position, level2.islands[i].position);
-        expect(level1.islands[i].requiredBridges, level2.islands[i].requiredBridges);
+        expect(level1.islands[i].requiredBridges,
+            level2.islands[i].requiredBridges);
       }
     });
 

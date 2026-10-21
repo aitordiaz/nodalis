@@ -68,7 +68,8 @@ class ProgressRepository extends ChangeNotifier {
   }
 
   /// Finds the next uncompleted level that is currently unlocked, or the last level if all are completed.
-  LevelDefinition? getNextRecommendedLevel(List<LevelDefinition> chapterLevels) {
+  LevelDefinition? getNextRecommendedLevel(
+      List<LevelDefinition> chapterLevels) {
     for (final level in chapterLevels) {
       if (isLevelUnlocked(level, chapterLevels) &&
           !isLevelCompleted(level.id)) {

@@ -96,7 +96,8 @@ class _DeductiveHintDialogState extends State<DeductiveHintDialog> {
                     ],
                   ),
                   IconButton(
-                    icon: Icon(Icons.close_rounded, color: palette.textSecondary),
+                    icon:
+                        Icon(Icons.close_rounded, color: palette.textSecondary),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -118,7 +119,8 @@ class _DeductiveHintDialogState extends State<DeductiveHintDialog> {
                     ),
 
                     // Stage 2: Logical Insight
-                    if (!hint.isMistake && hint.category != HintCategory.alreadySolved) ...[
+                    if (!hint.isMistake &&
+                        hint.category != HintCategory.alreadySolved) ...[
                       const SizedBox(height: 12.0),
                       if (!_revealedInsight)
                         OutlinedButton.icon(
@@ -134,7 +136,8 @@ class _DeductiveHintDialogState extends State<DeductiveHintDialog> {
                           onPressed: () {
                             setState(() => _revealedInsight = true);
                           },
-                          icon: const Icon(Icons.psychology_outlined, size: 18.0),
+                          icon:
+                              const Icon(Icons.psychology_outlined, size: 18.0),
                           label: const Text('Explain the Logic (Insight)'),
                         )
                       else
@@ -148,7 +151,8 @@ class _DeductiveHintDialogState extends State<DeductiveHintDialog> {
                     ],
 
                     // Stage 3: Solution Step
-                    if (!hint.isMistake && hint.category != HintCategory.alreadySolved) ...[
+                    if (!hint.isMistake &&
+                        hint.category != HintCategory.alreadySolved) ...[
                       const SizedBox(height: 12.0),
                       if (!_revealedSolution)
                         OutlinedButton.icon(
@@ -167,7 +171,8 @@ class _DeductiveHintDialogState extends State<DeductiveHintDialog> {
                               _revealedSolution = true;
                             });
                           },
-                          icon: const Icon(Icons.touch_app_outlined, size: 18.0),
+                          icon:
+                              const Icon(Icons.touch_app_outlined, size: 18.0),
                           label: const Text('Show Exact Move'),
                         )
                       else

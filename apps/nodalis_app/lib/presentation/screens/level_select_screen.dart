@@ -207,8 +207,7 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
                               horizontal: 14.0, vertical: 8.0),
                           decoration: BoxDecoration(
                             color: _selectedChapter == 0
-                                ? palette.islandSelectedStroke
-                                    .withOpacity(0.12)
+                                ? palette.islandSelectedStroke.withOpacity(0.12)
                                 : palette.surface,
                             borderRadius: BorderRadius.circular(
                                 NodalisDimensions.radiusMedium),
@@ -256,125 +255,128 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
               child: _selectedChapter == 0
                   ? _buildInfinitePlayView(palette)
                   : AnimatedBuilder(
-                animation: widget.progressRepository,
-                builder: (context, _) {
-                  final nextLevel = widget.progressRepository
-                      .getNextRecommendedLevel(currentChapterLevels);
-                  final hasProgress =
-                      widget.progressRepository.completedLevelIds.isNotEmpty;
+                      animation: widget.progressRepository,
+                      builder: (context, _) {
+                        final nextLevel = widget.progressRepository
+                            .getNextRecommendedLevel(currentChapterLevels);
+                        final hasProgress = widget
+                            .progressRepository.completedLevelIds.isNotEmpty;
 
-                  return Column(
-                    children: [
-                      if (hasProgress && nextLevel != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20.0, vertical: 6.0),
-                          child: InkWell(
-                            onTap: () => _openLevel(context, nextLevel),
-                            borderRadius: BorderRadius.circular(
-                                NodalisDimensions.radiusMedium),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0, vertical: 12.0),
-                              decoration: BoxDecoration(
-                                color: palette.islandSelectedStroke
-                                    .withOpacity(0.08),
-                                borderRadius: BorderRadius.circular(
-                                    NodalisDimensions.radiusMedium),
-                                border: Border.all(
-                                  color: palette.islandSelectedStroke
-                                      .withOpacity(0.35),
-                                  width: 1.0,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(8.0),
+                        return Column(
+                          children: [
+                            if (hasProgress && nextLevel != null)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20.0, vertical: 6.0),
+                                child: InkWell(
+                                  onTap: () => _openLevel(context, nextLevel),
+                                  borderRadius: BorderRadius.circular(
+                                      NodalisDimensions.radiusMedium),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0, vertical: 12.0),
                                     decoration: BoxDecoration(
-                                      color: palette.islandSelectedStroke,
-                                      shape: BoxShape.circle,
+                                      color: palette.islandSelectedStroke
+                                          .withOpacity(0.08),
+                                      borderRadius: BorderRadius.circular(
+                                          NodalisDimensions.radiusMedium),
+                                      border: Border.all(
+                                        color: palette.islandSelectedStroke
+                                            .withOpacity(0.35),
+                                        width: 1.0,
+                                      ),
                                     ),
-                                    child: Icon(
-                                      Icons.play_arrow_rounded,
-                                      color: palette.background,
-                                      size: 20.0,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12.0),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          'CONTINUE PUZZLE',
-                                          style: TextStyle(
+                                        Container(
+                                          padding: const EdgeInsets.all(8.0),
+                                          decoration: BoxDecoration(
                                             color: palette.islandSelectedStroke,
-                                            fontSize: 10.0,
-                                            fontWeight: FontWeight.w700,
-                                            letterSpacing: 1.2,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            Icons.play_arrow_rounded,
+                                            color: palette.background,
+                                            size: 20.0,
                                           ),
                                         ),
-                                        const SizedBox(height: 2.0),
-                                        Text(
-                                          'Level ${nextLevel.indexInChapter} • ${nextLevel.metadata.difficultyTier.value.toUpperCase()}',
-                                          style: TextStyle(
-                                            color: palette.textPrimary,
-                                            fontSize: 14.0,
-                                            fontWeight: FontWeight.w600,
+                                        const SizedBox(width: 12.0),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'CONTINUE PUZZLE',
+                                                style: TextStyle(
+                                                  color: palette
+                                                      .islandSelectedStroke,
+                                                  fontSize: 10.0,
+                                                  fontWeight: FontWeight.w700,
+                                                  letterSpacing: 1.2,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 2.0),
+                                              Text(
+                                                'Level ${nextLevel.indexInChapter} • ${nextLevel.metadata.difficultyTier.value.toUpperCase()}',
+                                                style: TextStyle(
+                                                  color: palette.textPrimary,
+                                                  fontSize: 14.0,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
                                           ),
+                                        ),
+                                        Icon(
+                                          Icons.arrow_forward_rounded,
+                                          color: palette.islandSelectedStroke,
+                                          size: 20.0,
                                         ),
                                       ],
                                     ),
                                   ),
-                                  Icon(
-                                    Icons.arrow_forward_rounded,
-                                    color: palette.islandSelectedStroke,
-                                    size: 20.0,
-                                  ),
-                                ],
+                                ),
+                              ),
+                            Expanded(
+                              child: GridView.builder(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20.0, vertical: 12.0),
+                                gridDelegate:
+                                    const SliverGridDelegateWithMaxCrossAxisExtent(
+                                  maxCrossAxisExtent: 180.0,
+                                  mainAxisSpacing: 16.0,
+                                  crossAxisSpacing: 16.0,
+                                  childAspectRatio: 1.15,
+                                ),
+                                itemCount: currentChapterLevels.length,
+                                itemBuilder: (context, index) {
+                                  final level = currentChapterLevels[index];
+                                  final isUnlocked = widget.progressRepository
+                                      .isLevelUnlocked(
+                                          level, currentChapterLevels,
+                                          previousChapterLevels:
+                                              prevChapterLevels);
+                                  final isCompleted = widget.progressRepository
+                                      .isLevelCompleted(level.id);
+                                  final bestMoves = widget.progressRepository
+                                      .getBestMoves(level.id);
+
+                                  return _buildLevelCard(
+                                    context: context,
+                                    level: level,
+                                    isUnlocked: isUnlocked,
+                                    isCompleted: isCompleted,
+                                    bestMoves: bestMoves,
+                                    palette: palette,
+                                  );
+                                },
                               ),
                             ),
-                          ),
-                        ),
-                      Expanded(
-                        child: GridView.builder(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20.0, vertical: 12.0),
-                          gridDelegate:
-                              const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 180.0,
-                            mainAxisSpacing: 16.0,
-                            crossAxisSpacing: 16.0,
-                            childAspectRatio: 1.15,
-                          ),
-                          itemCount: currentChapterLevels.length,
-                          itemBuilder: (context, index) {
-                            final level = currentChapterLevels[index];
-                            final isUnlocked = widget.progressRepository
-                                .isLevelUnlocked(level, currentChapterLevels,
-                                    previousChapterLevels: prevChapterLevels);
-                            final isCompleted = widget.progressRepository
-                                .isLevelCompleted(level.id);
-                            final bestMoves = widget.progressRepository
-                                .getBestMoves(level.id);
-
-                            return _buildLevelCard(
-                              context: context,
-                              level: level,
-                              isUnlocked: isUnlocked,
-                              isCompleted: isCompleted,
-                              bestMoves: bestMoves,
-                              palette: palette,
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+                          ],
+                        );
+                      },
+                    ),
             ),
           ],
         ),

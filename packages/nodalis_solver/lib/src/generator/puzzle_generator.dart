@@ -26,7 +26,8 @@ class PuzzleGenerator {
     final rng = Random(seed);
 
     for (var attempt = 0; attempt < maxAttempts; attempt++) {
-      final positions = _generateIslandPositions(width, height, islandCount, rng);
+      final positions =
+          _generateIslandPositions(width, height, islandCount, rng);
       if (positions == null) continue;
 
       final candidateEdges = _findOrthogonalCorridors(positions);
@@ -202,7 +203,10 @@ class PuzzleGenerator {
       for (var j = i + 1; j < edges.length; j++) {
         final e1 = edges[i];
         final e2 = edges[j];
-        if (e1.$1 == e2.$1 || e1.$1 == e2.$2 || e1.$2 == e2.$1 || e1.$2 == e2.$2) {
+        if (e1.$1 == e2.$1 ||
+            e1.$1 == e2.$2 ||
+            e1.$2 == e2.$1 ||
+            e1.$2 == e2.$2) {
           continue;
         }
 
@@ -232,7 +236,8 @@ class PuzzleGenerator {
     required Random rng,
   }) {
     final edgeCounts = List<int>.filled(candidateEdges.length, 0);
-    final shuffled = List.generate(candidateEdges.length, (i) => i)..shuffle(rng);
+    final shuffled = List.generate(candidateEdges.length, (i) => i)
+      ..shuffle(rng);
     final activeIndices = <int>[];
 
     final parent = <int, int>{for (final p in positions) p.$1: p.$1};
@@ -253,7 +258,8 @@ class PuzzleGenerator {
 
     bool crossesAnyActive(int candidateIdx) {
       for (final activeIdx in activeIndices) {
-        final pair = (min(candidateIdx, activeIdx), max(candidateIdx, activeIdx));
+        final pair =
+            (min(candidateIdx, activeIdx), max(candidateIdx, activeIdx));
         if (crossingPairs.contains(pair)) {
           return true;
         }

@@ -80,7 +80,8 @@ void main() {
       expect(find.byIcon(Icons.lock_outline_rounded), findsNothing);
     });
 
-    testWidgets('undo and redo restore and advance board state in gameplay screen',
+    testWidgets(
+        'undo and redo restore and advance board state in gameplay screen',
         (tester) async {
       await tester.binding.setSurfaceSize(const Size(600, 900));
 
@@ -111,8 +112,10 @@ void main() {
         matching: find.byWidgetPredicate((w) => w is ButtonStyleButton),
       );
 
-      expect(tester.widget<ButtonStyleButton>(undoButtonFinder).enabled, isFalse);
-      expect(tester.widget<ButtonStyleButton>(redoButtonFinder).enabled, isFalse);
+      expect(
+          tester.widget<ButtonStyleButton>(undoButtonFinder).enabled, isFalse);
+      expect(
+          tester.widget<ButtonStyleButton>(redoButtonFinder).enabled, isFalse);
 
       // Connect islands 1 and 2 (row 2 col 2 to row 2 col 4)
       await tester.tap(
@@ -127,20 +130,24 @@ void main() {
       await tester.pumpAndSettle();
 
       // Undo is enabled
-      expect(tester.widget<ButtonStyleButton>(undoButtonFinder).enabled, isTrue);
+      expect(
+          tester.widget<ButtonStyleButton>(undoButtonFinder).enabled, isTrue);
       await tester.tap(undoButtonFinder);
       await tester.pumpAndSettle();
 
       // Redo is now enabled!
-      expect(tester.widget<ButtonStyleButton>(redoButtonFinder).enabled, isTrue);
+      expect(
+          tester.widget<ButtonStyleButton>(redoButtonFinder).enabled, isTrue);
       await tester.tap(redoButtonFinder);
       await tester.pumpAndSettle();
 
       // Redo restored the connection, undo is enabled again
-      expect(tester.widget<ButtonStyleButton>(undoButtonFinder).enabled, isTrue);
+      expect(
+          tester.widget<ButtonStyleButton>(undoButtonFinder).enabled, isTrue);
     });
 
-    testWidgets('tapping hint button opens deductive hint dialog with progressive stages',
+    testWidgets(
+        'tapping hint button opens deductive hint dialog with progressive stages',
         (tester) async {
       await tester.binding.setSurfaceSize(const Size(600, 900));
 
@@ -181,7 +188,8 @@ void main() {
       expect(find.text('Logical Hint'), findsNothing);
     });
 
-    testWidgets('theme toggle cycles between light, dark, and OLED battery saver',
+    testWidgets(
+        'theme toggle cycles between light, dark, and OLED battery saver',
         (tester) async {
       await tester.binding.setSurfaceSize(const Size(600, 900));
 
@@ -210,7 +218,8 @@ void main() {
       expect(find.byIcon(Icons.light_mode_outlined), findsOneWidget);
     });
 
-    testWidgets('daily and infinite tab displays procedural options and launches puzzle',
+    testWidgets(
+        'daily and infinite tab displays procedural options and launches puzzle',
         (tester) async {
       await tester.binding.setSurfaceSize(const Size(600, 900));
 

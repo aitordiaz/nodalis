@@ -92,14 +92,17 @@ void main() {
       handle.dispose();
     });
 
-    test('BoardGeometry hitTestBridge detects tap on active bridge segment', () {
-      final boardWithBridge = testBoard.applyAction(
-        const SetBridgeAction(
-          fromId: 1,
-          toId: 2,
-          targetCount: BridgeCount.single,
-        ),
-      ).valueOrNull!;
+    test('BoardGeometry hitTestBridge detects tap on active bridge segment',
+        () {
+      final boardWithBridge = testBoard
+          .applyAction(
+            const SetBridgeAction(
+              fromId: 1,
+              toId: 2,
+              targetCount: BridgeCount.single,
+            ),
+          )
+          .valueOrNull!;
 
       final geometry = BoardGeometry.compute(
         canvasSize: const Size(400, 400),

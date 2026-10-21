@@ -54,7 +54,8 @@ class DeductiveEngine {
     for (final island in board.islands.values) {
       final remaining = board.getRemainingCapacity(island.id);
       if (remaining > 0) {
-        final totalRoom = corridorRooms[island.id]!.values.fold<int>(0, (s, r) => s + r);
+        final totalRoom =
+            corridorRooms[island.id]!.values.fold<int>(0, (s, r) => s + r);
         if (totalRoom < remaining) {
           return DeductiveHint.strandedIsland(
             islandId: island.id,
@@ -81,8 +82,10 @@ class DeductiveEngine {
         final entry = openNeighbors.entries.first;
         final neighborId = entry.key;
         final room = entry.value;
-        final currentBridge = board.bridges[makeBridgeKey(island.id, neighborId)];
-        final currentCount = currentBridge?.isActive == true ? currentBridge!.count.value : 0;
+        final currentBridge =
+            board.bridges[makeBridgeKey(island.id, neighborId)];
+        final currentCount =
+            currentBridge?.isActive == true ? currentBridge!.count.value : 0;
         final targetCount = currentCount + room;
 
         if (openNeighbors.length == 1) {
@@ -91,9 +94,12 @@ class DeductiveEngine {
             secondaryIslandId: neighborId,
             targetBridgeCount: targetCount,
             category: HintCategory.saturation,
-            nudge: 'Examine Island ${island.id}. How many accessible neighbors does it have?',
-            insight: 'Island ${island.id} still needs $remaining bridge(s) and only has one neighbor with available capacity (Island $neighborId). All remaining bridges must connect here.',
-            solutionStep: 'Connect $targetCount bridge(s) between Island ${island.id} and Island $neighborId.',
+            nudge:
+                'Examine Island ${island.id}. How many accessible neighbors does it have?',
+            insight:
+                'Island ${island.id} still needs $remaining bridge(s) and only has one neighbor with available capacity (Island $neighborId). All remaining bridges must connect here.',
+            solutionStep:
+                'Connect $targetCount bridge(s) between Island ${island.id} and Island $neighborId.',
           );
         } else {
           return DeductiveHint(
@@ -101,9 +107,12 @@ class DeductiveEngine {
             secondaryIslandId: neighborId,
             targetBridgeCount: targetCount,
             category: HintCategory.saturation,
-            nudge: 'Look at Island ${island.id} and the available room of its open neighbors.',
-            insight: 'Island ${island.id} needs $remaining bridge(s), which exactly matches the total capacity all its open corridors can absorb ($totalRoom). Every available path must be filled to maximum capacity.',
-            solutionStep: 'Place bridge(s) between Island ${island.id} and Island $neighborId.',
+            nudge:
+                'Look at Island ${island.id} and the available room of its open neighbors.',
+            insight:
+                'Island ${island.id} needs $remaining bridge(s), which exactly matches the total capacity all its open corridors can absorb ($totalRoom). Every available path must be filled to maximum capacity.',
+            solutionStep:
+                'Place bridge(s) between Island ${island.id} and Island $neighborId.',
           );
         }
       }
@@ -129,8 +138,10 @@ class DeductiveEngine {
 
         if (remaining > otherMax) {
           final minNeeded = remaining - otherMax;
-          final currentBridge = board.bridges[makeBridgeKey(island.id, neighborId)];
-          final currentCount = currentBridge?.isActive == true ? currentBridge!.count.value : 0;
+          final currentBridge =
+              board.bridges[makeBridgeKey(island.id, neighborId)];
+          final currentCount =
+              currentBridge?.isActive == true ? currentBridge!.count.value : 0;
 
           if (currentCount < minNeeded) {
             return DeductiveHint(
@@ -138,9 +149,12 @@ class DeductiveEngine {
               secondaryIslandId: neighborId,
               targetBridgeCount: minNeeded,
               category: HintCategory.pigeonhole,
-              nudge: 'Notice Island ${island.id} with requirement of ${island.requiredBridges} bridges.',
-              insight: 'Island ${island.id} needs $remaining more bridge(s). Even if all other neighbors absorb their absolute maximum ($otherMax), Island ${island.id} still must send at least $minNeeded bridge(s) toward Island $neighborId.',
-              solutionStep: 'Place at least $minNeeded bridge(s) between Island ${island.id} and Island $neighborId.',
+              nudge:
+                  'Notice Island ${island.id} with requirement of ${island.requiredBridges} bridges.',
+              insight:
+                  'Island ${island.id} needs $remaining more bridge(s). Even if all other neighbors absorb their absolute maximum ($otherMax), Island ${island.id} still must send at least $minNeeded bridge(s) toward Island $neighborId.',
+              solutionStep:
+                  'Place at least $minNeeded bridge(s) between Island ${island.id} and Island $neighborId.',
             );
           }
         }
@@ -162,9 +176,11 @@ class DeductiveEngine {
           final remainingB = board.getRemainingCapacity(neighborId);
 
           // If remainingA == remainingB and connecting them with remainingA bridges would close both
-          if (remainingA == remainingB && (remainingA == 1 || remainingA == 2)) {
+          if (remainingA == remainingB &&
+              (remainingA == 1 || remainingA == 2)) {
             // Check component size if this were connected
-            final targetBridgeCount = remainingA == 2 ? BridgeCount.double : BridgeCount.single;
+            final targetBridgeCount =
+                remainingA == 2 ? BridgeCount.double : BridgeCount.single;
             final testBoardResult = board.applyAction(
               SetBridgeAction(
                 fromId: island.id,
@@ -196,16 +212,21 @@ class DeductiveEngine {
                 if (compRemaining == 0) {
                   // Connecting island and neighbor would isolate them!
                   // If island has other neighbors, it must connect to them instead.
-                  final otherNeighbors = openNeighbors.keys.where((id) => id != neighborId).toList();
+                  final otherNeighbors = openNeighbors.keys
+                      .where((id) => id != neighborId)
+                      .toList();
                   if (otherNeighbors.isNotEmpty) {
                     final targetId = otherNeighbors.first;
                     return DeductiveHint(
                       primaryIslandId: island.id,
                       secondaryIslandId: targetId,
                       category: HintCategory.isolationAvoidance,
-                      nudge: 'Watch out: connecting Island ${island.id} to Island $neighborId would isolate them.',
-                      insight: 'Connecting Island ${island.id} directly to Island $neighborId would seal them into a closed group with no way to connect the remaining ${totalIslands - comp.length} island(s). Island ${island.id} must connect elsewhere.',
-                      solutionStep: 'Connect Island ${island.id} toward Island $targetId instead.',
+                      nudge:
+                          'Watch out: connecting Island ${island.id} to Island $neighborId would isolate them.',
+                      insight:
+                          'Connecting Island ${island.id} directly to Island $neighborId would seal them into a closed group with no way to connect the remaining ${totalIslands - comp.length} island(s). Island ${island.id} must connect elsewhere.',
+                      solutionStep:
+                          'Connect Island ${island.id} toward Island $targetId instead.',
                     );
                   }
                 }
@@ -218,11 +239,12 @@ class DeductiveEngine {
 
     // 6. Solver Fallback: Global Connectivity Search
     // Solve from initial board or current board to find the next confirmed bridge.
-    final solveTarget = initialBoard ?? Board.initial(
-      width: board.width,
-      height: board.height,
-      islands: board.islands.values,
-    );
+    final solveTarget = initialBoard ??
+        Board.initial(
+          width: board.width,
+          height: board.height,
+          islands: board.islands.values,
+        );
 
     final solverResult = _solver.solve(solveTarget, maxSolutions: 1);
     if (solverResult.solutions.isNotEmpty) {
@@ -231,7 +253,8 @@ class DeductiveEngine {
         if (!bridge.isActive) continue;
 
         final currentBridge = board.bridges[bridge.key];
-        final currentCount = currentBridge?.isActive == true ? currentBridge!.count.value : 0;
+        final currentCount =
+            currentBridge?.isActive == true ? currentBridge!.count.value : 0;
 
         if (currentCount < bridge.count.value) {
           final targetCount = bridge.count.value;
@@ -240,9 +263,12 @@ class DeductiveEngine {
             secondaryIslandId: bridge.islandBId,
             targetBridgeCount: targetCount,
             category: HintCategory.globalConnectivity,
-            nudge: 'Consider Island ${bridge.islandAId} and its surrounding network.',
-            insight: 'Based on global network constraints, Island ${bridge.islandAId} must connect to Island ${bridge.islandBId} to maintain graph connectivity.',
-            solutionStep: 'Place a bridge between Island ${bridge.islandAId} and Island ${bridge.islandBId}.',
+            nudge:
+                'Consider Island ${bridge.islandAId} and its surrounding network.',
+            insight:
+                'Based on global network constraints, Island ${bridge.islandAId} must connect to Island ${bridge.islandBId} to maintain graph connectivity.',
+            solutionStep:
+                'Place a bridge between Island ${bridge.islandAId} and Island ${bridge.islandBId}.',
           );
         }
       }
@@ -255,7 +281,8 @@ class DeductiveEngine {
   int _calculateCorridorRoom(Board board, Island islandA, Island islandB) {
     final key = makeBridgeKey(islandA.id, islandB.id);
     final currentBridge = board.bridges[key];
-    final currentCount = currentBridge?.isActive == true ? currentBridge!.count.value : 0;
+    final currentCount =
+        currentBridge?.isActive == true ? currentBridge!.count.value : 0;
 
     if (currentCount >= 2) return 0;
 
@@ -264,7 +291,8 @@ class DeductiveEngine {
     if (remB <= 0) return 0;
 
     // Test adding 1 bridge
-    final nextCount = currentCount == 1 ? BridgeCount.double : BridgeCount.single;
+    final nextCount =
+        currentCount == 1 ? BridgeCount.double : BridgeCount.single;
     final testResult = RulesEngine.validateBridgePlacement(
       from: islandA,
       to: islandB,

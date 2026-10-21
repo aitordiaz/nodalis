@@ -41,7 +41,8 @@ abstract interface class ProgressPersistence {
 
 /// Production implementation of [ProgressPersistence] backed by [SharedPreferences].
 /// Works seamlessly on Web (localStorage), Android, iOS, macOS, Windows, and Linux.
-final class SharedPreferencesProgressPersistence implements ProgressPersistence {
+final class SharedPreferencesProgressPersistence
+    implements ProgressPersistence {
   static const _keyCompletedLevels = 'nodalis_completed_levels_v1';
   static const _keyBestMoves = 'nodalis_best_moves_v1';
   static const _keyLastCompleted = 'nodalis_last_completed_v1';

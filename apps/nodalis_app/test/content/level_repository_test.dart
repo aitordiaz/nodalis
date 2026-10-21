@@ -32,7 +32,8 @@ void main() {
           Island(id: 1, position: (x: 1, y: 1), requiredBridges: 1),
           Island(id: 2, position: (x: 3, y: 1), requiredBridges: 1),
         ],
-        tutorial: LevelTutorial(hasInteractiveTutorial: false, hintTriggers: []),
+        tutorial:
+            LevelTutorial(hasInteractiveTutorial: false, hintTriggers: []),
       );
       ch1L2 = const LevelDefinition(
         id: 'ch01_02',
@@ -53,7 +54,8 @@ void main() {
           Island(id: 1, position: (x: 1, y: 1), requiredBridges: 1),
           Island(id: 2, position: (x: 3, y: 1), requiredBridges: 1),
         ],
-        tutorial: LevelTutorial(hasInteractiveTutorial: false, hintTriggers: []),
+        tutorial:
+            LevelTutorial(hasInteractiveTutorial: false, hintTriggers: []),
       );
       ch1L10 = const LevelDefinition(
         id: 'ch01_10',
@@ -74,7 +76,8 @@ void main() {
           Island(id: 1, position: (x: 1, y: 1), requiredBridges: 2),
           Island(id: 2, position: (x: 3, y: 1), requiredBridges: 2),
         ],
-        tutorial: LevelTutorial(hasInteractiveTutorial: false, hintTriggers: []),
+        tutorial:
+            LevelTutorial(hasInteractiveTutorial: false, hintTriggers: []),
       );
       ch2L1 = const LevelDefinition(
         id: 'ch02_01',
@@ -95,7 +98,8 @@ void main() {
           Island(id: 1, position: (x: 1, y: 1), requiredBridges: 1),
           Island(id: 2, position: (x: 4, y: 1), requiredBridges: 1),
         ],
-        tutorial: LevelTutorial(hasInteractiveTutorial: false, hintTriggers: []),
+        tutorial:
+            LevelTutorial(hasInteractiveTutorial: false, hintTriggers: []),
       );
 
       repo.loadLevels([ch1L1, ch1L2, ch1L10, ch2L1]);
@@ -110,7 +114,8 @@ void main() {
       expect(repo.getChapterTitle(2), 'Parallel Paths');
     });
 
-    test('getNextLevel transitions within chapter and crosses chapter boundary', () {
+    test('getNextLevel transitions within chapter and crosses chapter boundary',
+        () {
       // From Ch1 L1 to Ch1 L2
       final nextInChapter = repo.getNextLevel(ch1L1);
       expect(nextInChapter, isNotNull);

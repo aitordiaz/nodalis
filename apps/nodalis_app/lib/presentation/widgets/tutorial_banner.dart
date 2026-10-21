@@ -63,12 +63,10 @@ class TutorialBanner extends StatelessWidget {
     LevelDefinition level,
     Board board,
   ) {
-    final activeBridges =
-        board.bridges.values.where((b) => b.isActive).length;
+    final activeBridges = board.bridges.values.where((b) => b.isActive).length;
     final totalIslands = board.islands.length;
-    final satisfiedIslands = board.islands.values
-        .where((i) => board.isIslandSatisfied(i.id))
-        .length;
+    final satisfiedIslands =
+        board.islands.values.where((i) => board.isIslandSatisfied(i.id)).length;
 
     if (level.indexInChapter == 1) {
       if (activeBridges == 0) {

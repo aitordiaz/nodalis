@@ -100,7 +100,8 @@ void main() {
       expect(repo.getNextRecommendedLevel(chapterLevels), equals(level1));
     });
 
-    test('recording completion persists data and unlocks subsequent level', () async {
+    test('recording completion persists data and unlocks subsequent level',
+        () async {
       final persistence = InMemoryProgressPersistence();
       final repo = ProgressRepository(persistence: persistence);
       final chapterLevels = [level1, level2, level3];
@@ -123,10 +124,13 @@ void main() {
       expect(restoredRepo.lastCompletedLevelId, equals('ch01_01'));
       expect(restoredRepo.lastPlayedLevelId, equals('ch01_01'));
       expect(restoredRepo.isLevelUnlocked(level2, chapterLevels), isTrue);
-      expect(restoredRepo.getNextRecommendedLevel(chapterLevels), equals(level2));
+      expect(
+          restoredRepo.getNextRecommendedLevel(chapterLevels), equals(level2));
     });
 
-    test('SharedPreferencesProgressPersistence roundtrips with SharedPreferences', () async {
+    test(
+        'SharedPreferencesProgressPersistence roundtrips with SharedPreferences',
+        () async {
       SharedPreferences.setMockInitialValues({});
       final persistence = SharedPreferencesProgressPersistence();
 

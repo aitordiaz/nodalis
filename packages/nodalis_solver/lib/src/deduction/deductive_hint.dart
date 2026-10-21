@@ -65,7 +65,8 @@ final class DeductiveHint {
       primaryIslandId: 0,
       category: HintCategory.alreadySolved,
       nudge: 'All islands are properly connected!',
-      insight: 'The puzzle has met all bridge counts and forms a single connected network.',
+      insight:
+          'The puzzle has met all bridge counts and forms a single connected network.',
       solutionStep: 'Puzzle is complete.',
     );
   }
@@ -81,7 +82,8 @@ final class DeductiveHint {
       category: HintCategory.mistakeCorrection,
       isMistake: true,
       nudge: 'Take a close look at Island $islandId.',
-      insight: 'Island $islandId has $currentBridges bridges connected, but only needs $requiredBridges.',
+      insight:
+          'Island $islandId has $currentBridges bridges connected, but only needs $requiredBridges.',
       solutionStep: 'Remove the excess bridges connected to Island $islandId.',
     );
   }
@@ -98,8 +100,10 @@ final class DeductiveHint {
       category: HintCategory.mistakeCorrection,
       isMistake: true,
       nudge: 'Island $islandId is blocked and cannot be completed.',
-      insight: 'Island $islandId still needs $remaining bridge(s), but crossing bridges or satisfied neighbors prevent any further connections.',
-      solutionStep: 'Undo recent moves to unblock corridors for Island $islandId.',
+      insight:
+          'Island $islandId still needs $remaining bridge(s), but crossing bridges or satisfied neighbors prevent any further connections.',
+      solutionStep:
+          'Undo recent moves to unblock corridors for Island $islandId.',
     );
   }
 }

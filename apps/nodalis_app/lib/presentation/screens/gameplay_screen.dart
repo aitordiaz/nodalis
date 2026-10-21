@@ -101,14 +101,12 @@ class _GameplayScreenState extends State<GameplayScreen> {
     return switch (failure) {
       CapacityExceededFailure(:final capacity) =>
         'Island capacity reached (max $capacity bridges).',
-      CrossingBridgeFailure() =>
-        'Bridges cannot cross each other.',
+      CrossingBridgeFailure() => 'Bridges cannot cross each other.',
       NonOrthogonalConnectionFailure() =>
         'Bridges must be strictly horizontal or vertical.',
       InterveningIslandFailure() =>
         'Cannot bridge across an intermediate island.',
-      SelfConnectionFailure() =>
-        'An island cannot connect to itself.',
+      SelfConnectionFailure() => 'An island cannot connect to itself.',
       _ => 'Invalid bridge placement.',
     };
   }
@@ -287,13 +285,15 @@ class _GameplayScreenState extends State<GameplayScreen> {
             widget.session.redo();
           }
         },
-        const SingleActivator(LogicalKeyboardKey.keyZ, control: true, shift: true): () {
+        const SingleActivator(LogicalKeyboardKey.keyZ,
+            control: true, shift: true): () {
           if (widget.session.canRedo) {
             HapticFeedback.selectionClick();
             widget.session.redo();
           }
         },
-        const SingleActivator(LogicalKeyboardKey.keyZ, meta: true, shift: true): () {
+        const SingleActivator(LogicalKeyboardKey.keyZ, meta: true, shift: true):
+            () {
           if (widget.session.canRedo) {
             HapticFeedback.selectionClick();
             widget.session.redo();
@@ -325,8 +325,8 @@ class _GameplayScreenState extends State<GameplayScreen> {
               children: [
                 // Header Bar
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 12.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -356,7 +356,9 @@ class _GameplayScreenState extends State<GameplayScreen> {
                               const SizedBox(height: 2.0),
                               Text(
                                 widget.session.level.chapterId == 0
-                                    ? widget.session.level.metadata.difficultyTier.value.toUpperCase()
+                                    ? widget.session.level.metadata
+                                        .difficultyTier.value
+                                        .toUpperCase()
                                     : 'Level ${widget.session.level.indexInChapter}',
                                 style: TextStyle(
                                   color: palette.textPrimary,
@@ -400,7 +402,8 @@ class _GameplayScreenState extends State<GameplayScreen> {
                               _themeIcon(widget.activeThemeMode),
                               color: palette.textPrimary,
                             ),
-                            tooltip: 'Theme: ${widget.activeThemeMode.label} (tap to cycle)',
+                            tooltip:
+                                'Theme: ${widget.activeThemeMode.label} (tap to cycle)',
                             onPressed: widget.onToggleTheme,
                           ),
                         ],
@@ -442,8 +445,8 @@ class _GameplayScreenState extends State<GameplayScreen> {
 
                 // Bottom Action Bar
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 14.0),
                   child: Row(
                     children: [
                       Expanded(

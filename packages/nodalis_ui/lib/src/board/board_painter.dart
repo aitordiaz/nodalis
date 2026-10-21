@@ -203,8 +203,7 @@ final class BoardPainter extends CustomPainter {
   }
 
   void _drawConnectionGuides(Canvas canvas) {
-    final activeId =
-        viewModel.dragStartIslandId ?? viewModel.selectedIslandId;
+    final activeId = viewModel.dragStartIslandId ?? viewModel.selectedIslandId;
     if (activeId == null) return;
 
     for (final targetId in viewModel.validTargetIslandIds) {
@@ -243,8 +242,7 @@ final class BoardPainter extends CustomPainter {
       final bothSatisfied = board.isIslandSatisfied(bridge.islandAId) &&
           board.isIslandSatisfied(bridge.islandBId);
 
-      final singlePaint =
-          bothSatisfied ? _bridgeSatisfiedPaint : _bridgePaint;
+      final singlePaint = bothSatisfied ? _bridgeSatisfiedPaint : _bridgePaint;
       final doublePaint =
           bothSatisfied ? _doubleBridgeSatisfiedPaint : _doubleBridgePaint;
 
