@@ -25,7 +25,7 @@ class NodalisApp extends StatefulWidget {
 }
 
 class _NodalisAppState extends State<NodalisApp> {
-  bool _isDark = false;
+  NodalisThemeMode _themeMode = NodalisThemeMode.light;
   late final LevelRepository _levelRepository;
   late final ProgressRepository _progressRepository;
   bool _isLoading = true;
@@ -54,10 +54,8 @@ class _NodalisAppState extends State<NodalisApp> {
       await _progressRepository.load();
     }
 
-    final savedDark = await _progressRepository.loadThemeMode();
-    if (savedDark != null) {
-      _isDark = savedDark;
-    }
+    final savedMode = await _progressRepository.loadThemeMode();
+    _themeMode = savedMode;
 
     if (mounted) {
       setState(() {
@@ -68,14 +66,14 @@ class _NodalisAppState extends State<NodalisApp> {
 
   void _toggleTheme() {
     setState(() {
-      _isDark = !_isDark;
+      _themeMode = _themeMode.next;
     });
-    _progressRepository.saveThemeMode(_isDark);
+    _progressRepository.saveThemeMode(_themeMode);
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeData = _isDark ? NodalisThemeData.dark : NodalisThemeData.light;
+    final themeData = NodalisThemeData.fromMode(_themeMode);
 
     return NodalisTheme(
       data: themeData,
@@ -94,7 +92,7 @@ class _NodalisAppState extends State<NodalisApp> {
                 levelRepository: _levelRepository,
                 progressRepository: _progressRepository,
                 onToggleTheme: _toggleTheme,
-                isDark: _isDark,
+                themeMode: _themeMode,
               ),
       ),
     );

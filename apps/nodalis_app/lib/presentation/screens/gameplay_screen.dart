@@ -16,7 +16,8 @@ class GameplayScreen extends StatefulWidget {
   final ProgressRepository? progressRepository;
   final LevelRepository? levelRepository;
   final VoidCallback onToggleTheme;
-  final bool isDark;
+  final bool? isDark;
+  final NodalisThemeMode? themeMode;
 
   const GameplayScreen({
     super.key,
@@ -24,8 +25,13 @@ class GameplayScreen extends StatefulWidget {
     this.progressRepository,
     this.levelRepository,
     required this.onToggleTheme,
-    required this.isDark,
+    this.isDark,
+    this.themeMode,
   });
+
+  NodalisThemeMode get activeThemeMode =>
+      themeMode ??
+      (isDark == true ? NodalisThemeMode.dark : NodalisThemeMode.light);
 
   @override
   State<GameplayScreen> createState() => _GameplayScreenState();
@@ -190,13 +196,45 @@ class _GameplayScreenState extends State<GameplayScreen> {
                           progressRepository: widget.progressRepository,
                           levelRepository: widget.levelRepository,
                           onToggleTheme: widget.onToggleTheme,
-                          isDark: widget.isDark,
+                          themeMode: widget.activeThemeMode,
                         );
                       },
                     ),
                   );
                 },
                 child: const Text('Next Level'),
+              )
+            else if (widget.session.level.id.startsWith('gen_'))
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: palette.islandSelectedStroke,
+                  foregroundColor: palette.background,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  final nextGen = const PuzzleGenerator().generate(
+                    width: widget.session.level.gridWidth,
+                    height: widget.session.level.gridHeight,
+                    islandCount: widget.session.level.islands.length,
+                    difficulty: widget.session.level.metadata.difficultyTier,
+                  );
+                  if (nextGen != null) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute<void>(
+                        builder: (context) {
+                          return GameplayScreen(
+                            session: GameSession(level: nextGen),
+                            progressRepository: widget.progressRepository,
+                            levelRepository: widget.levelRepository,
+                            onToggleTheme: widget.onToggleTheme,
+                            themeMode: widget.activeThemeMode,
+                          );
+                        },
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Next Puzzle'),
               )
             else
               FilledButton(
@@ -305,7 +343,9 @@ class _GameplayScreenState extends State<GameplayScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Chapter ${widget.session.level.chapterId}',
+                                widget.session.level.chapterId == 0
+                                    ? widget.session.level.metadata.titleKey
+                                    : 'Chapter ${widget.session.level.chapterId}',
                                 style: TextStyle(
                                   color: palette.textSecondary,
                                   fontSize: 12.0,
@@ -315,7 +355,9 @@ class _GameplayScreenState extends State<GameplayScreen> {
                               ),
                               const SizedBox(height: 2.0),
                               Text(
-                                'Level ${widget.session.level.indexInChapter}',
+                                widget.session.level.chapterId == 0
+                                    ? widget.session.level.metadata.difficultyTier.value.toUpperCase()
+                                    : 'Level ${widget.session.level.indexInChapter}',
                                 style: TextStyle(
                                   color: palette.textPrimary,
                                   fontSize: 19.0,
@@ -355,12 +397,10 @@ class _GameplayScreenState extends State<GameplayScreen> {
                           ),
                           IconButton(
                             icon: Icon(
-                              widget.isDark
-                                  ? Icons.light_mode_outlined
-                                  : Icons.dark_mode_outlined,
+                              _themeIcon(widget.activeThemeMode),
                               color: palette.textPrimary,
                             ),
-                            tooltip: 'Toggle Theme',
+                            tooltip: 'Theme: ${widget.activeThemeMode.label} (tap to cycle)',
                             onPressed: widget.onToggleTheme,
                           ),
                         ],
@@ -491,5 +531,16 @@ class _GameplayScreenState extends State<GameplayScreen> {
         ),
       ),
     );
+  }
+
+  IconData _themeIcon(NodalisThemeMode mode) {
+    switch (mode) {
+      case NodalisThemeMode.light:
+        return Icons.light_mode_outlined;
+      case NodalisThemeMode.dark:
+        return Icons.dark_mode_outlined;
+      case NodalisThemeMode.oled:
+        return Icons.battery_saver_rounded;
+    }
   }
 }

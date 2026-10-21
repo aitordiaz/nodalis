@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:nodalis_domain/nodalis_domain.dart';
 import '../tokens/theme.dart';
 import 'board_geometry.dart';
 import 'board_gesture_detector.dart';
@@ -8,7 +9,7 @@ import 'board_view_model.dart';
 
 /// Top-level composite widget for rendering and interacting with a Nodalis puzzle board.
 /// Encapsulates zero-allocation painting, gesture detection, and accessibility semantics.
-class BoardWidget extends StatelessWidget {
+class BoardWidget extends StatefulWidget {
   final BoardViewModel viewModel;
   final ValueChanged<BoardViewModel> onViewModelChanged;
   final void Function(int fromId, int toId) onConnect;
@@ -23,6 +24,40 @@ class BoardWidget extends StatelessWidget {
   });
 
   @override
+  State<BoardWidget> createState() => _BoardWidgetState();
+}
+
+class _BoardWidgetState extends State<BoardWidget> {
+  Size? _lastSize;
+  int? _lastWidth;
+  int? _lastHeight;
+  Map<int, Island>? _lastIslands;
+  BoardGeometry? _cachedGeometry;
+
+  BoardGeometry _getOrCreateGeometry(Size canvasSize) {
+    final board = widget.viewModel.board;
+    if (_cachedGeometry != null &&
+        _lastSize == canvasSize &&
+        _lastWidth == board.width &&
+        _lastHeight == board.height &&
+        identical(_lastIslands, board.islands)) {
+      return _cachedGeometry!;
+    }
+
+    _lastSize = canvasSize;
+    _lastWidth = board.width;
+    _lastHeight = board.height;
+    _lastIslands = board.islands;
+    _cachedGeometry = BoardGeometry.compute(
+      canvasSize: canvasSize,
+      gridWidth: board.width,
+      gridHeight: board.height,
+      islands: board.islands,
+    );
+    return _cachedGeometry!;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = NodalisTheme.of(context);
     final palette = theme.palette;
@@ -30,12 +65,7 @@ class BoardWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final canvasSize = Size(constraints.maxWidth, constraints.maxHeight);
-        final geometry = BoardGeometry.compute(
-          canvasSize: canvasSize,
-          gridWidth: viewModel.board.width,
-          gridHeight: viewModel.board.height,
-          islands: viewModel.board.islands,
-        );
+        final geometry = _getOrCreateGeometry(canvasSize);
 
         return Stack(
           fit: StackFit.expand,
@@ -45,7 +75,7 @@ class BoardWidget extends StatelessWidget {
               child: CustomPaint(
                 size: canvasSize,
                 painter: BoardPainter(
-                  viewModel: viewModel,
+                  viewModel: widget.viewModel,
                   geometry: geometry,
                   palette: palette,
                 ),
@@ -54,18 +84,18 @@ class BoardWidget extends StatelessWidget {
 
             // 2. Accessibility Semantics Tree (VoiceOver / TalkBack / Web DOM)
             BoardSemantics(
-              viewModel: viewModel,
+              viewModel: widget.viewModel,
               geometry: geometry,
               onIslandTapped: (islandId) => _handleSemanticIslandTap(islandId),
-              onIslandCleared: onIslandCleared ?? (_) {},
+              onIslandCleared: widget.onIslandCleared ?? (_) {},
             ),
 
             // 3. Low-latency gesture handling
             BoardGestureDetector(
-              viewModel: viewModel,
+              viewModel: widget.viewModel,
               geometry: geometry,
-              onViewModelChanged: onViewModelChanged,
-              onConnect: onConnect,
+              onViewModelChanged: widget.onViewModelChanged,
+              onConnect: widget.onConnect,
             ),
           ],
         );
@@ -74,14 +104,17 @@ class BoardWidget extends StatelessWidget {
   }
 
   void _handleSemanticIslandTap(int islandId) {
-    final selectedId = viewModel.selectedIslandId;
+    final selectedId = widget.viewModel.selectedIslandId;
     if (selectedId == null) {
-      onViewModelChanged(viewModel.copyWith(selectedIslandId: () => islandId));
+      widget.onViewModelChanged(
+          widget.viewModel.copyWith(selectedIslandId: () => islandId));
     } else if (selectedId == islandId) {
-      onViewModelChanged(viewModel.copyWith(selectedIslandId: () => null));
+      widget.onViewModelChanged(
+          widget.viewModel.copyWith(selectedIslandId: () => null));
     } else {
-      onConnect(selectedId, islandId);
-      onViewModelChanged(viewModel.copyWith(selectedIslandId: () => null));
+      widget.onConnect(selectedId, islandId);
+      widget.onViewModelChanged(
+          widget.viewModel.copyWith(selectedIslandId: () => null));
     }
   }
 }

@@ -180,6 +180,69 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Logical Hint'), findsNothing);
     });
+
+    testWidgets('theme toggle cycles between light, dark, and OLED battery saver',
+        (tester) async {
+      await tester.binding.setSurfaceSize(const Size(600, 900));
+
+      await tester.pumpWidget(NodalisApp(
+        levelRepository: levelRepo,
+        progressRepository: progressRepo,
+      ));
+      await tester.pumpAndSettle();
+
+      // Initially Light mode
+      expect(find.byIcon(Icons.light_mode_outlined), findsOneWidget);
+
+      // Tap theme button -> Dark mode
+      await tester.tap(find.byIcon(Icons.light_mode_outlined));
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.dark_mode_outlined), findsOneWidget);
+
+      // Tap theme button -> OLED battery saver mode
+      await tester.tap(find.byIcon(Icons.dark_mode_outlined));
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.battery_saver_rounded), findsOneWidget);
+
+      // Tap theme button -> back to Light mode
+      await tester.tap(find.byIcon(Icons.battery_saver_rounded));
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.light_mode_outlined), findsOneWidget);
+    });
+
+    testWidgets('daily and infinite tab displays procedural options and launches puzzle',
+        (tester) async {
+      await tester.binding.setSurfaceSize(const Size(600, 900));
+
+      await tester.pumpWidget(NodalisApp(
+        levelRepository: levelRepo,
+        progressRepository: progressRepo,
+      ));
+      await tester.pumpAndSettle();
+
+      // Tap Daily & Infinite pill
+      expect(find.text('Daily & Infinite'), findsOneWidget);
+      await tester.tap(find.text('Daily & Infinite'));
+      await tester.pumpAndSettle();
+
+      // Verify Infinite play view is displayed
+      expect(find.text('DAILY & INFINITE'), findsOneWidget);
+      expect(find.text('DAILY CHALLENGE'), findsOneWidget);
+      expect(find.text('PROCEDURAL PUZZLES'), findsOneWidget);
+      expect(find.text('Gentle'), findsOneWidget);
+      expect(find.text('Balanced'), findsOneWidget);
+      expect(find.text('Master'), findsOneWidget);
+
+      // Tap Play on Gentle card
+      final playButtons = find.widgetWithText(FilledButton, 'Play');
+      expect(playButtons, findsWidgets);
+      await tester.tap(playButtons.first);
+      await tester.pumpAndSettle();
+
+      // Verify launched into procedural gameplay
+      expect(find.text('Procedural Puzzle'), findsOneWidget);
+      expect(find.text('EASY'), findsOneWidget);
+    });
   });
 }
 

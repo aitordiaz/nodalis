@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:nodalis_level_format/nodalis_level_format.dart';
+import 'package:nodalis_ui/nodalis_ui.dart';
 import 'progress_persistence.dart';
 
 /// Manages local player progression, level unlocks, move records, and session persistence.
@@ -118,8 +119,20 @@ class ProgressRepository extends ChangeNotifier {
     _persistence.clear();
   }
 
-  Future<void> saveThemeMode(bool isDark) => _persistence.saveThemeMode(isDark);
+  Future<void> saveThemeMode(dynamic themeMode) =>
+      _persistence.saveThemeMode(themeMode);
 
-  Future<bool?> loadThemeMode() async =>
-      (await _persistence.loadProgress()).isDarkMode;
+  Future<NodalisThemeMode> loadThemeMode() async {
+    final data = await _persistence.loadProgress();
+    if (data.themeMode != null) {
+      for (final mode in NodalisThemeMode.values) {
+        if (mode.name == data.themeMode) {
+          return mode;
+        }
+      }
+    }
+    return data.isDarkMode == true
+        ? NodalisThemeMode.dark
+        : NodalisThemeMode.light;
+  }
 }

@@ -3,6 +3,7 @@ import 'package:nodalis_app/session/progress_persistence.dart';
 import 'package:nodalis_app/session/progress_repository.dart';
 import 'package:nodalis_domain/nodalis_domain.dart';
 import 'package:nodalis_level_format/nodalis_level_format.dart';
+import 'package:nodalis_ui/nodalis_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -135,7 +136,7 @@ void main() {
         lastCompletedLevelId: 'ch01_02',
         lastPlayedLevelId: 'ch01_02',
       );
-      await persistence.saveThemeMode(true);
+      await persistence.saveThemeMode(NodalisThemeMode.oled);
 
       final loaded = await persistence.loadProgress();
       expect(loaded.completedLevelIds, containsAll(['ch01_01', 'ch01_02']));
@@ -144,6 +145,11 @@ void main() {
       expect(loaded.lastCompletedLevelId, equals('ch01_02'));
       expect(loaded.lastPlayedLevelId, equals('ch01_02'));
       expect(loaded.isDarkMode, isTrue);
+      expect(loaded.themeMode, equals('oled'));
+
+      final repo = ProgressRepository(persistence: persistence);
+      final mode = await repo.loadThemeMode();
+      expect(mode, equals(NodalisThemeMode.oled));
     });
 
     test('resetProgress clears both memory and persistence', () async {

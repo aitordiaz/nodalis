@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:nodalis_ui/nodalis_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Immutable snapshot of persisted progress data.
@@ -10,6 +11,7 @@ final class ProgressData {
   final String? lastCompletedLevelId;
   final String? lastPlayedLevelId;
   final bool? isDarkMode;
+  final String? themeMode;
 
   const ProgressData({
     this.completedLevelIds = const {},
@@ -17,6 +19,7 @@ final class ProgressData {
     this.lastCompletedLevelId,
     this.lastPlayedLevelId,
     this.isDarkMode,
+    this.themeMode,
   });
 }
 
@@ -31,7 +34,7 @@ abstract interface class ProgressPersistence {
     required String? lastPlayedLevelId,
   });
 
-  Future<void> saveThemeMode(bool isDark);
+  Future<void> saveThemeMode(dynamic themeMode);
 
   Future<void> clear();
 }
@@ -44,6 +47,7 @@ final class SharedPreferencesProgressPersistence implements ProgressPersistence 
   static const _keyLastCompleted = 'nodalis_last_completed_v1';
   static const _keyLastPlayed = 'nodalis_last_played_v1';
   static const _keyThemeDark = 'nodalis_theme_dark_v1';
+  static const _keyThemeMode = 'nodalis_theme_mode_v1';
 
   SharedPreferences? _cachedPrefs;
 
@@ -60,6 +64,7 @@ final class SharedPreferencesProgressPersistence implements ProgressPersistence 
       final lastCompleted = prefs.getString(_keyLastCompleted);
       final lastPlayed = prefs.getString(_keyLastPlayed);
       final isDark = prefs.getBool(_keyThemeDark);
+      final themeMode = prefs.getString(_keyThemeMode);
 
       final Map<String, int> bestMoves = {};
       if (bestMovesJson != null && bestMovesJson.isNotEmpty) {
@@ -81,6 +86,7 @@ final class SharedPreferencesProgressPersistence implements ProgressPersistence 
         lastCompletedLevelId: lastCompleted,
         lastPlayedLevelId: lastPlayed,
         isDarkMode: isDark,
+        themeMode: themeMode,
       );
     } catch (e) {
       debugPrint('Progress load failure (falling back to empty): $e');
@@ -115,10 +121,22 @@ final class SharedPreferencesProgressPersistence implements ProgressPersistence 
   }
 
   @override
-  Future<void> saveThemeMode(bool isDark) async {
+  Future<void> saveThemeMode(dynamic themeMode) async {
     try {
       final prefs = await _getPrefs();
-      await prefs.setBool(_keyThemeDark, isDark);
+      if (themeMode is NodalisThemeMode) {
+        await Future.wait([
+          prefs.setString(_keyThemeMode, themeMode.name),
+          prefs.setBool(_keyThemeDark, themeMode.isDark),
+        ]);
+      } else if (themeMode is bool) {
+        await Future.wait([
+          prefs.setBool(_keyThemeDark, themeMode),
+          prefs.setString(_keyThemeMode, themeMode ? 'dark' : 'light'),
+        ]);
+      } else if (themeMode is String) {
+        await prefs.setString(_keyThemeMode, themeMode);
+      }
     } catch (e) {
       debugPrint('Failed to persist theme mode: $e');
     }
@@ -163,17 +181,31 @@ final class InMemoryProgressPersistence implements ProgressPersistence {
       lastCompletedLevelId: lastCompletedLevelId,
       lastPlayedLevelId: lastPlayedLevelId,
       isDarkMode: _data.isDarkMode,
+      themeMode: _data.themeMode,
     );
   }
 
   @override
-  Future<void> saveThemeMode(bool isDark) async {
+  Future<void> saveThemeMode(dynamic themeMode) async {
+    String? modeStr;
+    bool? darkBool;
+    if (themeMode is NodalisThemeMode) {
+      modeStr = themeMode.name;
+      darkBool = themeMode.isDark;
+    } else if (themeMode is bool) {
+      darkBool = themeMode;
+      modeStr = themeMode ? 'dark' : 'light';
+    } else if (themeMode is String) {
+      modeStr = themeMode;
+      darkBool = themeMode != 'light';
+    }
     _data = ProgressData(
       completedLevelIds: _data.completedLevelIds,
       bestMoves: _data.bestMoves,
       lastCompletedLevelId: _data.lastCompletedLevelId,
       lastPlayedLevelId: _data.lastPlayedLevelId,
-      isDarkMode: isDark,
+      isDarkMode: darkBool,
+      themeMode: modeStr,
     );
   }
 

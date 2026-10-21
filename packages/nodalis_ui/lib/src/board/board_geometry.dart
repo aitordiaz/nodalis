@@ -12,6 +12,8 @@ final class BoardGeometry {
   final double cellSize;
   final Offset origin;
   final Map<int, Offset> islandPositions;
+  final List<Offset> gridDotOffsets;
+  final Map<int, List<Offset>> islandPipPositions;
 
   const BoardGeometry._({
     required this.canvasSize,
@@ -20,6 +22,8 @@ final class BoardGeometry {
     required this.cellSize,
     required this.origin,
     required this.islandPositions,
+    required this.gridDotOffsets,
+    required this.islandPipPositions,
   });
 
   /// Factory computing geometry fitted within [canvasSize] with padding.
@@ -46,12 +50,42 @@ final class BoardGeometry {
     final originY = (canvasSize.height - boardHeight) / 2;
     final origin = Offset(originX, originY);
 
+    // Precalculate all island pixel positions
     final positions = <int, Offset>{};
     for (final island in islands.values) {
       positions[island.id] = Offset(
         originX + island.position.x * cellSize,
         originY + island.position.y * cellSize,
       );
+    }
+
+    // Precompute grid dot offsets for single-batch GPU drawPoints
+    final dotOffsets = <Offset>[];
+    for (var x = 0; x < gridWidth; x++) {
+      for (var y = 0; y < gridHeight; y++) {
+        dotOffsets.add(Offset(
+          originX + x * cellSize,
+          originY + y * cellSize,
+        ));
+      }
+    }
+
+    // Precompute progress pip centers per island for zero-allocation rendering
+    final pipPositions = <int, List<Offset>>{};
+    for (final island in islands.values) {
+      final center = positions[island.id]!;
+      final totalPips = island.requiredBridges;
+      if (totalPips > 0 && totalPips <= 8) {
+        const pipSpacing = 5.5;
+        final totalWidth = (totalPips - 1) * pipSpacing;
+        final startX = center.dx - totalWidth / 2;
+        final pipY = center.dy + NodalisDimensions.islandVisualRadius - 7.5;
+        final pips = <Offset>[];
+        for (var i = 0; i < totalPips; i++) {
+          pips.add(Offset(startX + i * pipSpacing, pipY));
+        }
+        pipPositions[island.id] = pips;
+      }
     }
 
     return BoardGeometry._(
@@ -61,6 +95,8 @@ final class BoardGeometry {
       cellSize: cellSize,
       origin: origin,
       islandPositions: positions,
+      gridDotOffsets: dotOffsets,
+      islandPipPositions: pipPositions,
     );
   }
 

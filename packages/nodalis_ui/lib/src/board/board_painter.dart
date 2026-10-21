@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/widgets.dart';
 import 'package:nodalis_domain/nodalis_domain.dart';
 import '../tokens/dimensions.dart';
@@ -33,6 +34,11 @@ final class BoardPainter extends CustomPainter {
 
   // Cached TextPainters for digits 1..8
   final Map<int, TextPainter> _cachedTextPainters = {};
+  // Precomputed island text top-left offsets for zero heap allocation during paint
+  final Map<int, Offset> _islandTextOffsets = {};
+  // Precomputed double bridge parallel line pairs: key -> (line1A, line1B, line2A, line2B)
+  final Map<BridgeKey, ({Offset a1, Offset b1, Offset a2, Offset b2})>
+      _doubleBridgeLines = {};
 
   BoardPainter({
     required this.viewModel,
@@ -41,12 +47,14 @@ final class BoardPainter extends CustomPainter {
   }) : super() {
     _initPaints();
     _initTextPainters();
+    _precomputeDoubleBridges();
   }
 
   void _initPaints() {
     _gridDotPaint = Paint()
       ..color = palette.gridDot
-      ..style = PaintingStyle.fill;
+      ..strokeWidth = 3.0
+      ..strokeCap = StrokeCap.round;
 
     _islandFillPaint = Paint()
       ..color = palette.islandNormalFill
@@ -144,6 +152,45 @@ final class BoardPainter extends CustomPainter {
       )..layout();
       _cachedTextPainters[i] = painter;
     }
+
+    // Precalculate digit text top-left offsets for all islands
+    for (final island in viewModel.board.islands.values) {
+      final center = geometry.islandPositions[island.id];
+      final painter = _cachedTextPainters[island.requiredBridges];
+      if (center != null && painter != null) {
+        _islandTextOffsets[island.id] = Offset(
+          center.dx - painter.width / 2,
+          center.dy - painter.height / 2 - 2.5,
+        );
+      }
+    }
+  }
+
+  void _precomputeDoubleBridges() {
+    const halfGap = NodalisDimensions.doubleBridgeGap / 2;
+    for (final bridge in viewModel.board.bridges.values) {
+      if (bridge.count != BridgeCount.double) continue;
+      final posA = geometry.islandPositions[bridge.islandAId];
+      final posB = geometry.islandPositions[bridge.islandBId];
+      if (posA == null || posB == null) continue;
+
+      final isHorizontal = (posA.dy - posB.dy).abs() < 1.0;
+      if (isHorizontal) {
+        _doubleBridgeLines[bridge.key] = (
+          a1: Offset(posA.dx, posA.dy - halfGap),
+          b1: Offset(posB.dx, posB.dy - halfGap),
+          a2: Offset(posA.dx, posA.dy + halfGap),
+          b2: Offset(posB.dx, posB.dy + halfGap),
+        );
+      } else {
+        _doubleBridgeLines[bridge.key] = (
+          a1: Offset(posA.dx - halfGap, posA.dy),
+          b1: Offset(posB.dx - halfGap, posB.dy),
+          a2: Offset(posA.dx + halfGap, posA.dy),
+          b2: Offset(posB.dx + halfGap, posB.dy),
+        );
+      }
+    }
   }
 
   @override
@@ -174,11 +221,12 @@ final class BoardPainter extends CustomPainter {
   }
 
   void _drawGridBackground(Canvas canvas) {
-    for (var x = 0; x < geometry.gridWidth; x++) {
-      for (var y = 0; y < geometry.gridHeight; y++) {
-        final offset = geometry.gridToOffset((x: x, y: y));
-        canvas.drawCircle(offset, 1.5, _gridDotPaint);
-      }
+    if (geometry.gridDotOffsets.isNotEmpty) {
+      canvas.drawPoints(
+        ui.PointMode.points,
+        geometry.gridDotOffsets,
+        _gridDotPaint,
+      );
     }
   }
 
@@ -192,7 +240,6 @@ final class BoardPainter extends CustomPainter {
       final posB = geometry.islandPositions[bridge.islandBId];
       if (posA == null || posB == null) continue;
 
-      final isHorizontal = (posA.dy - posB.dy).abs() < 1.0;
       final bothSatisfied = board.isIslandSatisfied(bridge.islandAId) &&
           board.isIslandSatisfied(bridge.islandBId);
 
@@ -205,29 +252,10 @@ final class BoardPainter extends CustomPainter {
         case BridgeCount.single:
           canvas.drawLine(posA, posB, singlePaint);
         case BridgeCount.double:
-          const halfGap = NodalisDimensions.doubleBridgeGap / 2;
-          if (isHorizontal) {
-            canvas.drawLine(
-              Offset(posA.dx, posA.dy - halfGap),
-              Offset(posB.dx, posB.dy - halfGap),
-              doublePaint,
-            );
-            canvas.drawLine(
-              Offset(posA.dx, posA.dy + halfGap),
-              Offset(posB.dx, posB.dy + halfGap),
-              doublePaint,
-            );
-          } else {
-            canvas.drawLine(
-              Offset(posA.dx - halfGap, posA.dy),
-              Offset(posB.dx - halfGap, posB.dy),
-              doublePaint,
-            );
-            canvas.drawLine(
-              Offset(posA.dx + halfGap, posA.dy),
-              Offset(posB.dx + halfGap, posB.dy),
-              doublePaint,
-            );
+          final lines = _doubleBridgeLines[bridge.key];
+          if (lines != null) {
+            canvas.drawLine(lines.a1, lines.b1, doublePaint);
+            canvas.drawLine(lines.a2, lines.b2, doublePaint);
           }
         case BridgeCount.none:
           break;
@@ -296,32 +324,21 @@ final class BoardPainter extends CustomPainter {
             _islandSatisfiedStrokePaint);
       }
 
-      // 4. Draw number digit (slightly raised to make room for progress pips)
+      // 4. Draw number digit from precomputed offset
       final textPainter = _cachedTextPainters[island.requiredBridges];
-      if (textPainter != null) {
-        final textOffset = Offset(
-          center.dx - textPainter.width / 2,
-          center.dy - textPainter.height / 2 - 2.5,
-        );
+      final textOffset = _islandTextOffsets[island.id];
+      if (textPainter != null && textOffset != null) {
         textPainter.paint(canvas, textOffset);
       }
 
-      // 5. Draw connection progress pips at bottom of island
-      final totalPips = island.requiredBridges;
-      if (totalPips > 0 && totalPips <= 8) {
+      // 5. Draw connection progress pips from precomputed positions
+      final pips = geometry.islandPipPositions[island.id];
+      if (pips != null && pips.isNotEmpty) {
         const pipRadius = 2.0;
-        const pipSpacing = 5.5;
-        final totalWidth = (totalPips - 1) * pipSpacing;
-        final startX = center.dx - totalWidth / 2;
-        final pipY = center.dy + NodalisDimensions.islandVisualRadius - 7.5;
-
-        for (var i = 0; i < totalPips; i++) {
-          final pipCenter = Offset(startX + i * pipSpacing, pipY);
-          if (i < connected) {
-            canvas.drawCircle(pipCenter, pipRadius, _pipFilledPaint);
-          } else {
-            canvas.drawCircle(pipCenter, pipRadius, _pipEmptyPaint);
-          }
+        for (var i = 0; i < pips.length; i++) {
+          final pipCenter = pips[i];
+          final paint = i < connected ? _pipFilledPaint : _pipEmptyPaint;
+          canvas.drawCircle(pipCenter, pipRadius, paint);
         }
       }
     }

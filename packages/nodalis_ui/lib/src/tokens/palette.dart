@@ -88,6 +88,27 @@ final class NodalisPalette {
     gridDot: Color(0xFF272B32),
   );
 
+  /// True OLED black theme for maximum mobile battery efficiency.
+  static const oled = NodalisPalette(
+    background: Color(0xFF000000),
+    surface: Color(0xFF101214),
+    surfaceSubtle: Color(0xFF1E2228),
+    textPrimary: Color(0xFFEDEDED),
+    textSecondary: Color(0xFFA5ACB4),
+    textMuted: Color(0xFF6F7680),
+    islandNormalFill: Color(0xFF000000),
+    islandNormalStroke: Color(0xFFD0D5DC),
+    islandSelectedStroke: Color(0xFF6BB5C7),
+    islandSatisfiedFill: Color(0xFF0C1F1B),
+    islandSatisfiedStroke: Color(0xFF5FA89B),
+    islandExceededFill: Color(0xFF2E1311),
+    islandExceededStroke: Color(0xFFE06D5C),
+    bridgeNormal: Color(0xFFD0D5DC),
+    bridgePreview: Color(0xFF6BB5C7),
+    bridgeConflict: Color(0xFFE06D5C),
+    gridDot: Color(0xFF1E2228),
+  );
+
   /// High-contrast theme for enhanced visual accessibility.
   static const highContrast = NodalisPalette(
     background: Color(0xFF000000),
