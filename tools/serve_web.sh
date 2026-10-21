@@ -15,6 +15,14 @@ echo "================================================="
 echo " Nodalis Web Server running at:"
 echo "   http://localhost:$PORT"
 echo "================================================="
-echo "Press Ctrl+C to stop."
 
-python3 -m http.server "$PORT" -d "$WEB_DIR"
+if command -v docker &>/dev/null && docker info &>/dev/null; then
+  echo "Starting via Docker Compose (accessible from Windows host at http://localhost:$PORT)..."
+  (cd "$ROOT_DIR" && docker compose up -d)
+  echo "Web container is running. Open http://localhost:$PORT in your Windows browser."
+  echo "To view logs: docker compose logs -f"
+  echo "To stop:      docker compose down"
+else
+  echo "Press Ctrl+C to stop."
+  python3 -m http.server "$PORT" -d "$WEB_DIR"
+fi
