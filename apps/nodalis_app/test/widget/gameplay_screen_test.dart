@@ -16,7 +16,7 @@ void main() {
         LevelParser.parseJson(_testLevel1Json),
         LevelParser.parseJson(_testLevel2Json),
       ]);
-      progressRepo = ProgressRepository();
+      progressRepo = ProgressRepository.inMemory();
     });
 
     testWidgets('browses levels, plays level 1, solves it, and unlocks level 2',

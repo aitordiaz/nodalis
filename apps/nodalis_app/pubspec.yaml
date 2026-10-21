@@ -15,6 +15,7 @@ dependencies:
   nodalis_domain:
   nodalis_level_format:
   nodalis_ui:
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:

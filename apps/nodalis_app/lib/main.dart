@@ -49,6 +49,16 @@ class _NodalisAppState extends State<NodalisApp> {
         ]);
       }
     }
+
+    if (!_progressRepository.isLoaded) {
+      await _progressRepository.load();
+    }
+
+    final savedDark = await _progressRepository.loadThemeMode();
+    if (savedDark != null) {
+      _isDark = savedDark;
+    }
+
     if (mounted) {
       setState(() {
         _isLoading = false;
@@ -60,6 +70,7 @@ class _NodalisAppState extends State<NodalisApp> {
     setState(() {
       _isDark = !_isDark;
     });
+    _progressRepository.saveThemeMode(_isDark);
   }
 
   @override
