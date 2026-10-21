@@ -114,6 +114,10 @@ class LevelRepository {
         .sort((a, b) => a.indexInChapter.compareTo(b.indexInChapter));
   }
 
+  List<LevelDefinition> get allLevels => _levelsById.values.toList();
+
+  LevelDefinition? getLevelById(String id) => _levelsById[id];
+
   List<LevelDefinition> getChapterLevels(int chapterId) {
     return _levelsByChapter[chapterId] ?? const [];
   }

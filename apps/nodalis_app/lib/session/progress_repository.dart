@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:nodalis_domain/nodalis_domain.dart';
 import 'package:nodalis_level_format/nodalis_level_format.dart';
 import 'package:nodalis_ui/nodalis_ui.dart';
+import '../content/level_repository.dart';
 import 'progress_persistence.dart';
 
 /// Manages local player progression, level unlocks, move records, and session persistence.
@@ -9,8 +11,10 @@ class ProgressRepository extends ChangeNotifier {
   final ProgressPersistence _persistence;
   final Set<String> _completedLevelIds = {};
   final Map<String, int> _bestMoves = {};
+  final Map<String, ActiveBoardState> _activeBoards = {};
   String? _lastCompletedLevelId;
   String? _lastPlayedLevelId;
+  String? _lastThemeModeName;
   bool _isLoaded = false;
   bool _hapticsEnabled = true;
   bool _soundEnabled = true;
@@ -27,12 +31,23 @@ class ProgressRepository extends ChangeNotifier {
   bool get isLoaded => _isLoaded;
   Set<String> get completedLevelIds => Set.unmodifiable(_completedLevelIds);
   Map<String, int> get bestMoves => Map.unmodifiable(_bestMoves);
+  Map<String, ActiveBoardState> get activeBoards =>
+      Map.unmodifiable(_activeBoards);
   String? get lastCompletedLevelId => _lastCompletedLevelId;
   String? get lastPlayedLevelId => _lastPlayedLevelId;
   bool get hapticsEnabled => _hapticsEnabled;
   bool get soundEnabled => _soundEnabled;
   bool get reduceMotion => _reduceMotion;
   bool get accessibilityShapes => _accessibilityShapes;
+
+  NodalisThemeMode get currentThemeMode {
+    if (_lastThemeModeName != null) {
+      for (final mode in NodalisThemeMode.values) {
+        if (mode.name == _lastThemeModeName) return mode;
+      }
+    }
+    return NodalisThemeMode.light;
+  }
 
   void triggerHaptic({bool medium = false}) {
     if (_hapticsEnabled) {
@@ -73,8 +88,12 @@ class ProgressRepository extends ChangeNotifier {
     _bestMoves.clear();
     _bestMoves.addAll(data.bestMoves);
 
+    _activeBoards.clear();
+    _activeBoards.addAll(data.activeBoards);
+
     _lastCompletedLevelId = data.lastCompletedLevelId;
     _lastPlayedLevelId = data.lastPlayedLevelId;
+    _lastThemeModeName = data.themeMode;
     _hapticsEnabled = data.hapticsEnabled;
     _soundEnabled = data.soundEnabled;
     _reduceMotion = data.reduceMotion;
@@ -86,6 +105,8 @@ class ProgressRepository extends ChangeNotifier {
   bool isLevelCompleted(String levelId) => _completedLevelIds.contains(levelId);
 
   int? getBestMoves(String levelId) => _bestMoves[levelId];
+
+  ActiveBoardState? getActiveBoard(String levelId) => _activeBoards[levelId];
 
   /// A level is unlocked if it is the first level of Chapter 1,
   /// or if the first level of Chapter N where Chapter N-1 is completed,
@@ -122,7 +143,46 @@ class ProgressRepository extends ChangeNotifier {
     return null;
   }
 
-  void recordCompletion(String levelId, int moves) {
+  /// Determines the ideal level to resume for the player.
+  LevelDefinition? getResumeLevel(LevelRepository levelRepo) {
+    if (!levelRepo.isLoaded) return null;
+
+    // 1. If player was actively playing a level that is not yet completed:
+    if (_lastPlayedLevelId != null) {
+      final level = levelRepo.getLevelById(_lastPlayedLevelId!);
+      if (level != null && !isLevelCompleted(level.id)) {
+        return level;
+      }
+    }
+
+    // 2. If the last played level is completed, advance to the next level in campaign:
+    final referenceLevelId = _lastPlayedLevelId ?? _lastCompletedLevelId;
+    if (referenceLevelId != null) {
+      final refLevel = levelRepo.getLevelById(referenceLevelId);
+      if (refLevel != null) {
+        final next = levelRepo.getNextLevel(refLevel);
+        if (next != null) {
+          return next;
+        }
+      }
+    }
+
+    // 3. Scan chapters in sequence for the first unlocked, uncompleted level:
+    for (final chId in levelRepo.chapterIds) {
+      if (chId == 0) continue;
+      final chLevels = levelRepo.getChapterLevels(chId);
+      final next = getNextRecommendedLevel(chLevels);
+      if (next != null) return next;
+    }
+
+    // 4. Default to first level of Chapter 1 if available:
+    final firstChapter = levelRepo.getChapterLevels(1);
+    if (firstChapter.isNotEmpty) return firstChapter.first;
+
+    return null;
+  }
+
+  Future<void> recordCompletion(String levelId, int moves) async {
     _completedLevelIds.add(levelId);
     final previousBest = _bestMoves[levelId];
     if (previousBest == null || moves < previousBest) {
@@ -130,10 +190,11 @@ class ProgressRepository extends ChangeNotifier {
     }
     _lastCompletedLevelId = levelId;
     _lastPlayedLevelId = levelId;
+    _activeBoards.remove(levelId);
     notifyListeners();
 
-    // Persist asynchronously in background
-    _persistence.saveProgress(
+    await _persistence.clearActiveBoard(levelId);
+    await _persistence.saveProgress(
       completedLevelIds: _completedLevelIds,
       bestMoves: _bestMoves,
       lastCompletedLevelId: _lastCompletedLevelId,
@@ -141,11 +202,14 @@ class ProgressRepository extends ChangeNotifier {
     );
   }
 
-  void setLastPlayed(String levelId) {
+  Future<void> setLastPlayed(String levelId) async {
+    final changed = _lastPlayedLevelId != levelId;
     _lastPlayedLevelId = levelId;
-    notifyListeners();
+    if (changed) {
+      notifyListeners();
+    }
 
-    _persistence.saveProgress(
+    await _persistence.saveProgress(
       completedLevelIds: _completedLevelIds,
       bestMoves: _bestMoves,
       lastCompletedLevelId: _lastCompletedLevelId,
@@ -153,30 +217,66 @@ class ProgressRepository extends ChangeNotifier {
     );
   }
 
-  void resetProgress() {
+  Future<void> saveActiveBoard(
+      String levelId, List<Bridge> bridges, int moveCount) async {
+    _activeBoards[levelId] =
+        ActiveBoardState(bridges: bridges, moveCount: moveCount);
+    _lastPlayedLevelId = levelId;
+
+    await _persistence.saveActiveBoard(
+      levelId: levelId,
+      bridges: bridges,
+      moveCount: moveCount,
+    );
+    await _persistence.saveProgress(
+      completedLevelIds: _completedLevelIds,
+      bestMoves: _bestMoves,
+      lastCompletedLevelId: _lastCompletedLevelId,
+      lastPlayedLevelId: _lastPlayedLevelId,
+    );
+  }
+
+  Future<void> clearActiveBoard(String levelId) async {
+    _activeBoards.remove(levelId);
+    await _persistence.clearActiveBoard(levelId);
+  }
+
+  Future<void> resetProgress() async {
     _completedLevelIds.clear();
     _bestMoves.clear();
+    _activeBoards.clear();
     _lastCompletedLevelId = null;
     _lastPlayedLevelId = null;
     notifyListeners();
 
-    _persistence.clear();
+    await _persistence.clear();
   }
 
-  Future<void> saveThemeMode(dynamic themeMode) =>
-      _persistence.saveThemeMode(themeMode);
+  Future<void> saveThemeMode(dynamic themeMode) async {
+    if (themeMode is NodalisThemeMode) {
+      _lastThemeModeName = themeMode.name;
+    } else if (themeMode is String) {
+      _lastThemeModeName = themeMode;
+    } else if (themeMode is bool) {
+      _lastThemeModeName = themeMode ? 'dark' : 'light';
+    }
+    await _persistence.saveThemeMode(themeMode);
+  }
 
   Future<NodalisThemeMode> loadThemeMode() async {
     final data = await _persistence.loadProgress();
     if (data.themeMode != null) {
       for (final mode in NodalisThemeMode.values) {
         if (mode.name == data.themeMode) {
+          _lastThemeModeName = mode.name;
           return mode;
         }
       }
     }
-    return data.isDarkMode == true
+    final mode = data.isDarkMode == true
         ? NodalisThemeMode.dark
         : NodalisThemeMode.light;
+    _lastThemeModeName = mode.name;
+    return mode;
   }
 }

@@ -87,11 +87,12 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(600, 900));
 
       // Unlock level 2
-      progressRepo.recordCompletion('ch01_01_first_steps', 2);
+      await progressRepo.recordCompletion('ch01_01_first_steps', 2);
 
       await tester.pumpWidget(NodalisApp(
         levelRepository: levelRepo,
         progressRepository: progressRepo,
+        autoResume: false,
       ));
       await tester.pumpAndSettle();
 
@@ -322,6 +323,36 @@ void main() {
       // Verify launched into procedural gameplay
       expect(find.text('Procedural Puzzle'), findsOneWidget);
       expect(find.text('EASY'), findsOneWidget);
+    });
+
+    testWidgets(
+        'auto-resumes last played or recommended level directly into gameplay on app relaunch',
+        (tester) async {
+      await tester.binding.setSurfaceSize(const Size(600, 900));
+
+      // Player previously completed Level 1 and proceeded to Level 2
+      await progressRepo.recordCompletion('ch01_01_first_steps', 2);
+      await progressRepo.setLastPlayed('ch01_02_triangle');
+
+      // Launch app with autoResume enabled (default)
+      await tester.pumpWidget(NodalisApp(
+        levelRepository: levelRepo,
+        progressRepository: progressRepo,
+        autoResume: true,
+      ));
+      await tester.pumpAndSettle();
+
+      // Verify that user is directly in Level 2 gameplay screen!
+      expect(find.text('Level 2'), findsOneWidget);
+      expect(find.text('Chapter 1'), findsOneWidget);
+
+      // Verify Back button pops to Level Select Screen with Chapter 1 selected
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Chapter 1: First Connections'), findsOneWidget);
+      // Level 1 is marked solved
+      expect(find.byIcon(Icons.check_circle_rounded), findsOneWidget);
     });
   });
 }

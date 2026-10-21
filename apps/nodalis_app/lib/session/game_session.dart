@@ -10,8 +10,29 @@ class GameSession extends ChangeNotifier {
   final UndoStack<Board> _undoStack = UndoStack();
   int _moveCount = 0;
 
-  GameSession({required this.level}) {
-    _currentBoard = level.toInitialBoard();
+  GameSession({
+    required this.level,
+    List<Bridge>? initialBridges,
+    int initialMoveCount = 0,
+  }) {
+    if (initialBridges != null &&
+        initialBridges.where((b) => b.isActive).isNotEmpty) {
+      final initial = level.toInitialBoard();
+      final map = {
+        for (final b in initialBridges)
+          if (b.isActive) b.key: b,
+      };
+      _currentBoard = Board(
+        width: initial.width,
+        height: initial.height,
+        islands: initial.islands,
+        bridges: map,
+      );
+      _moveCount = initialMoveCount;
+    } else {
+      _currentBoard = level.toInitialBoard();
+      _moveCount = 0;
+    }
   }
 
   Board get currentBoard => _currentBoard;

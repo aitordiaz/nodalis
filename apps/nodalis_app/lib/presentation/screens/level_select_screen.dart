@@ -18,6 +18,8 @@ class LevelSelectScreen extends StatefulWidget {
   final bool? isDark;
   final NodalisThemeMode? themeMode;
 
+  final bool autoResume;
+
   const LevelSelectScreen({
     super.key,
     required this.levelRepository,
@@ -26,6 +28,7 @@ class LevelSelectScreen extends StatefulWidget {
     this.onSetTheme,
     this.isDark,
     this.themeMode,
+    this.autoResume = true,
   });
 
   NodalisThemeMode get activeThemeMode =>
@@ -38,13 +41,18 @@ class LevelSelectScreen extends StatefulWidget {
 
 class _LevelSelectScreenState extends State<LevelSelectScreen> {
   int _selectedChapter = 1;
+  bool _hasAutoResumed = false;
 
   @override
   void initState() {
     super.initState();
-    final lastPlayed = widget.progressRepository.lastPlayedLevelId;
+    final lastPlayed = widget.progressRepository.lastPlayedLevelId ??
+        widget.progressRepository.lastCompletedLevelId;
     if (lastPlayed != null) {
-      if (lastPlayed.startsWith('ch04_')) {
+      final level = widget.levelRepository.getLevelById(lastPlayed);
+      if (level != null) {
+        _selectedChapter = level.chapterId;
+      } else if (lastPlayed.startsWith('ch04_')) {
         _selectedChapter = 4;
       } else if (lastPlayed.startsWith('ch03_')) {
         _selectedChapter = 3;
@@ -52,6 +60,23 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
         _selectedChapter = 2;
       } else if (lastPlayed.startsWith('ch01_')) {
         _selectedChapter = 1;
+      }
+    }
+
+    if (widget.autoResume && !_hasAutoResumed) {
+      final hasProgress =
+          widget.progressRepository.completedLevelIds.isNotEmpty ||
+              widget.progressRepository.lastPlayedLevelId != null;
+      if (hasProgress) {
+        final resumeLevel =
+            widget.progressRepository.getResumeLevel(widget.levelRepository);
+        if (resumeLevel != null) {
+          _hasAutoResumed = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            _openLevel(context, resumeLevel);
+          });
+        }
       }
     }
   }
@@ -287,19 +312,27 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
                   : AnimatedBuilder(
                       animation: widget.progressRepository,
                       builder: (context, _) {
-                        final nextLevel = widget.progressRepository
+                        final resumeLevel = widget.progressRepository
+                            .getResumeLevel(widget.levelRepository);
+                        final nextInChapter = widget.progressRepository
                             .getNextRecommendedLevel(currentChapterLevels);
-                        final hasProgress = widget
-                            .progressRepository.completedLevelIds.isNotEmpty;
+                        final displayLevel = (resumeLevel != null &&
+                                resumeLevel.chapterId == _selectedChapter)
+                            ? resumeLevel
+                            : (nextInChapter ?? resumeLevel);
+                        final hasProgress = widget.progressRepository
+                                .completedLevelIds.isNotEmpty ||
+                            widget.progressRepository.lastPlayedLevelId != null;
 
                         return Column(
                           children: [
-                            if (hasProgress && nextLevel != null)
+                            if (hasProgress && displayLevel != null)
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 20.0, vertical: 6.0),
                                 child: InkWell(
-                                  onTap: () => _openLevel(context, nextLevel),
+                                  onTap: () =>
+                                      _openLevel(context, displayLevel),
                                   borderRadius: BorderRadius.circular(
                                       NodalisDimensions.radiusMedium),
                                   child: Container(
@@ -348,7 +381,7 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
                                               ),
                                               const SizedBox(height: 2.0),
                                               Text(
-                                                'Level ${nextLevel.indexInChapter} • ${nextLevel.metadata.difficultyTier.value.toUpperCase()}',
+                                                'Chapter ${displayLevel.chapterId} • Level ${displayLevel.indexInChapter} (${displayLevel.metadata.difficultyTier.value.toUpperCase()})',
                                                 style: TextStyle(
                                                   color: palette.textPrimary,
                                                   fontSize: 14.0,
@@ -416,10 +449,15 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
 
   void _openLevel(BuildContext context, LevelDefinition level) {
     widget.progressRepository.setLastPlayed(level.id);
+    final active = widget.progressRepository.getActiveBoard(level.id);
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (context) {
-          final session = GameSession(level: level);
+          final session = GameSession(
+            level: level,
+            initialBridges: active?.bridges,
+            initialMoveCount: active?.moveCount ?? 0,
+          );
           return GameplayScreen(
             session: session,
             progressRepository: widget.progressRepository,

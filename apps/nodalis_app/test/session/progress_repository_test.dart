@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nodalis_app/content/level_repository.dart';
 import 'package:nodalis_app/session/progress_persistence.dart';
 import 'package:nodalis_app/session/progress_repository.dart';
 import 'package:nodalis_domain/nodalis_domain.dart';
@@ -106,7 +107,7 @@ void main() {
       final repo = ProgressRepository(persistence: persistence);
       final chapterLevels = [level1, level2, level3];
 
-      repo.recordCompletion('ch01_01', 3);
+      await repo.recordCompletion('ch01_01', 3);
 
       expect(repo.isLevelCompleted('ch01_01'), isTrue);
       expect(repo.getBestMoves('ch01_01'), equals(3));
@@ -160,10 +161,10 @@ void main() {
       final persistence = InMemoryProgressPersistence();
       final repo = ProgressRepository(persistence: persistence);
 
-      repo.recordCompletion('ch01_01', 2);
+      await repo.recordCompletion('ch01_01', 2);
       expect(repo.isLevelCompleted('ch01_01'), isTrue);
 
-      repo.resetProgress();
+      await repo.resetProgress();
       expect(repo.completedLevelIds, isEmpty);
       expect(repo.bestMoves, isEmpty);
       expect(repo.lastCompletedLevelId, isNull);
@@ -196,6 +197,67 @@ void main() {
       expect(restored.hapticsEnabled, isFalse);
       expect(restored.reduceMotion, isTrue);
       expect(restored.accessibilityShapes, isFalse);
+    });
+
+    test(
+        'getResumeLevel resolves active or recommended next level across chapters',
+        () async {
+      final levelRepo = LevelRepository();
+      levelRepo.loadLevels([level1, level2, level3]);
+      final repo = ProgressRepository.inMemory();
+
+      // Brand new user -> starts at level 1
+      expect(repo.getResumeLevel(levelRepo)?.id, equals('ch01_01'));
+
+      // Started level 1 but not finished -> resumes level 1
+      await repo.setLastPlayed('ch01_01');
+      expect(repo.getResumeLevel(levelRepo)?.id, equals('ch01_01'));
+
+      // Solved level 1 -> resumes level 2
+      await repo.recordCompletion('ch01_01', 2);
+      expect(repo.getResumeLevel(levelRepo)?.id, equals('ch01_02'));
+
+      // Started level 2 -> resumes level 2
+      await repo.setLastPlayed('ch01_02');
+      expect(repo.getResumeLevel(levelRepo)?.id, equals('ch01_02'));
+
+      // Solved level 2 -> resumes level 3
+      await repo.recordCompletion('ch01_02', 3);
+      expect(repo.getResumeLevel(levelRepo)?.id, equals('ch01_03'));
+    });
+
+    test('saveActiveBoard persists bridges and restores across cold restart',
+        () async {
+      SharedPreferences.setMockInitialValues({});
+      final persistence = SharedPreferencesProgressPersistence();
+      final repo = ProgressRepository(persistence: persistence);
+
+      final bridge = Bridge(
+        islandAId: 1,
+        islandBId: 2,
+        count: BridgeCount.single,
+      );
+
+      await repo.saveActiveBoard('ch01_01', [bridge], 1);
+
+      expect(repo.getActiveBoard('ch01_01')?.bridges.length, equals(1));
+      expect(repo.getActiveBoard('ch01_01')?.moveCount, equals(1));
+      expect(repo.lastPlayedLevelId, equals('ch01_01'));
+
+      // Cold restart
+      final reloadedRepo = ProgressRepository(persistence: persistence);
+      await reloadedRepo.load();
+
+      expect(reloadedRepo.getActiveBoard('ch01_01')?.bridges.length, equals(1));
+      expect(reloadedRepo.getActiveBoard('ch01_01')?.bridges.first.count,
+          equals(BridgeCount.single));
+      expect(reloadedRepo.getActiveBoard('ch01_01')?.moveCount, equals(1));
+      expect(reloadedRepo.lastPlayedLevelId, equals('ch01_01'));
+
+      // Completing the level cleans up active board state
+      await reloadedRepo.recordCompletion('ch01_01', 2);
+      expect(reloadedRepo.getActiveBoard('ch01_01'), isNull);
+      expect(reloadedRepo.isLevelCompleted('ch01_01'), isTrue);
     });
   });
 }

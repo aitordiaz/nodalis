@@ -1,23 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:nodalis_level_format/nodalis_level_format.dart';
 import 'package:nodalis_ui/nodalis_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'content/level_repository.dart';
 import 'presentation/screens/level_select_screen.dart';
+import 'session/progress_persistence.dart';
 import 'session/progress_repository.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const NodalisApp());
+  final prefs = await SharedPreferences.getInstance();
+  final persistence = SharedPreferencesProgressPersistence(prefs);
+  final progressRepository = ProgressRepository(persistence: persistence);
+  await progressRepository.load();
+
+  final levelRepository = LevelRepository();
+  await levelRepository.loadBundledLevels();
+
+  runApp(NodalisApp(
+    levelRepository: levelRepository,
+    progressRepository: progressRepository,
+  ));
 }
 
 class NodalisApp extends StatefulWidget {
   final LevelRepository? levelRepository;
   final ProgressRepository? progressRepository;
+  final bool autoResume;
 
   const NodalisApp({
     super.key,
     this.levelRepository,
     this.progressRepository,
+    this.autoResume = true,
   });
 
   @override
@@ -35,7 +50,12 @@ class _NodalisAppState extends State<NodalisApp> {
     super.initState();
     _levelRepository = widget.levelRepository ?? LevelRepository();
     _progressRepository = widget.progressRepository ?? ProgressRepository();
-    _initializeContent();
+    if (_levelRepository.isLoaded && _progressRepository.isLoaded) {
+      _isLoading = false;
+      _themeMode = _progressRepository.currentThemeMode;
+    } else {
+      _initializeContent();
+    }
   }
 
   Future<void> _initializeContent() async {
@@ -101,6 +121,7 @@ class _NodalisAppState extends State<NodalisApp> {
                 onToggleTheme: _toggleTheme,
                 onSetTheme: _setTheme,
                 themeMode: _themeMode,
+                autoResume: widget.autoResume,
               ),
       ),
     );

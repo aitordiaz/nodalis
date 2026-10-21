@@ -48,6 +48,10 @@ class _GameplayScreenState extends State<GameplayScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      widget.progressRepository?.setLastPlayed(widget.session.level.id);
+    });
     _viewModel = BoardViewModel(board: widget.session.currentBoard);
     widget.session.addListener(_onSessionUpdated);
   }
@@ -80,6 +84,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
     if (widget.session.isSolved && !_hasShownSolvedDialog) {
       _hasShownSolvedDialog = true;
       _triggerHaptic(medium: true);
+      widget.progressRepository?.clearActiveBoard(widget.session.level.id);
       widget.progressRepository?.recordCompletion(
         widget.session.level.id,
         widget.session.moveCount,
@@ -91,6 +96,12 @@ class _GameplayScreenState extends State<GameplayScreen> {
         if (!mounted) return;
         _showSolvedDialog();
       });
+    } else if (!widget.session.isSolved) {
+      widget.progressRepository?.saveActiveBoard(
+        widget.session.level.id,
+        widget.session.currentBoard.bridges.values.toList(),
+        widget.session.moveCount,
+      );
     }
   }
 
@@ -333,6 +344,8 @@ class _GameplayScreenState extends State<GameplayScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                widget.progressRepository
+                    ?.clearActiveBoard(widget.session.level.id);
                 widget.session.reset();
                 _hasShownSolvedDialog = false;
               },
@@ -349,11 +362,18 @@ class _GameplayScreenState extends State<GameplayScreen> {
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
+                  widget.progressRepository?.setLastPlayed(nextLevel.id);
+                  final active =
+                      widget.progressRepository?.getActiveBoard(nextLevel.id);
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute<void>(
                       builder: (context) {
                         return GameplayScreen(
-                          session: GameSession(level: nextLevel),
+                          session: GameSession(
+                            level: nextLevel,
+                            initialBridges: active?.bridges,
+                            initialMoveCount: active?.moveCount ?? 0,
+                          ),
                           progressRepository: widget.progressRepository,
                           levelRepository: widget.levelRepository,
                           onToggleTheme: widget.onToggleTheme,

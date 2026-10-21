@@ -1,7 +1,20 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:nodalis_domain/nodalis_domain.dart';
 import 'package:nodalis_ui/nodalis_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Immutable representation of an in-progress board configuration.
+@immutable
+final class ActiveBoardState {
+  final List<Bridge> bridges;
+  final int moveCount;
+
+  const ActiveBoardState({
+    required this.bridges,
+    required this.moveCount,
+  });
+}
 
 /// Immutable snapshot of persisted progress data.
 @immutable
@@ -16,6 +29,7 @@ final class ProgressData {
   final bool soundEnabled;
   final bool reduceMotion;
   final bool accessibilityShapes;
+  final Map<String, ActiveBoardState> activeBoards;
 
   const ProgressData({
     this.completedLevelIds = const {},
@@ -28,6 +42,7 @@ final class ProgressData {
     this.soundEnabled = true,
     this.reduceMotion = false,
     this.accessibilityShapes = true,
+    this.activeBoards = const {},
   });
 }
 
@@ -51,6 +66,14 @@ abstract interface class ProgressPersistence {
     required bool accessibilityShapes,
   });
 
+  Future<void> saveActiveBoard({
+    required String levelId,
+    required List<Bridge> bridges,
+    required int moveCount,
+  });
+
+  Future<void> clearActiveBoard(String levelId);
+
   Future<void> clear();
 }
 
@@ -58,6 +81,8 @@ abstract interface class ProgressPersistence {
 /// Works seamlessly on Web (localStorage), Android, iOS, macOS, Windows, and Linux.
 final class SharedPreferencesProgressPersistence
     implements ProgressPersistence {
+  static const _keyV2Store = 'nodalis_player_store_v2';
+  static const _keyActiveBoards = 'nodalis_active_boards_v1';
   static const _keyCompletedLevels = 'nodalis_completed_levels_v1';
   static const _keyBestMoves = 'nodalis_best_moves_v1';
   static const _keyLastCompleted = 'nodalis_last_completed_v1';
@@ -72,6 +97,9 @@ final class SharedPreferencesProgressPersistence
 
   SharedPreferences? _cachedPrefs;
 
+  SharedPreferencesProgressPersistence([SharedPreferences? prefs])
+      : _cachedPrefs = prefs;
+
   Future<SharedPreferences> _getPrefs() async {
     return _cachedPrefs ??= await SharedPreferences.getInstance();
   }
@@ -80,34 +108,107 @@ final class SharedPreferencesProgressPersistence
   Future<ProgressData> loadProgress() async {
     try {
       final prefs = await _getPrefs();
-      final completedList = prefs.getStringList(_keyCompletedLevels) ?? [];
-      final bestMovesJson = prefs.getString(_keyBestMoves);
-      final lastCompleted = prefs.getString(_keyLastCompleted);
-      final lastPlayed = prefs.getString(_keyLastPlayed);
-      final isDark = prefs.getBool(_keyThemeDark);
-      final themeMode = prefs.getString(_keyThemeMode);
-      final haptics = prefs.getBool(_keyHaptics) ?? true;
-      final sound = prefs.getBool(_keySound) ?? true;
-      final reduceMotion = prefs.getBool(_keyReduceMotion) ?? false;
-      final accessibilityShapes =
-          prefs.getBool(_keyAccessibilityShapes) ?? true;
 
-      final Map<String, int> bestMoves = {};
-      if (bestMovesJson != null && bestMovesJson.isNotEmpty) {
+      // 1. Check consolidated atomic V2 store first
+      final v2Json = prefs.getString(_keyV2Store);
+      Set<String> completedList = {};
+      Map<String, int> bestMoves = {};
+      String? lastCompleted;
+      String? lastPlayed;
+      String? themeMode;
+      bool? isDark;
+      bool haptics = true;
+      bool sound = true;
+      bool reduceMotion = false;
+      bool accessibilityShapes = true;
+
+      if (v2Json != null && v2Json.isNotEmpty) {
         try {
-          final decoded = jsonDecode(bestMovesJson) as Map<String, dynamic>;
-          for (final entry in decoded.entries) {
-            if (entry.value is int) {
-              bestMoves[entry.key] = entry.value as int;
+          final decoded = jsonDecode(v2Json) as Map<String, dynamic>;
+          final rawCompleted = decoded['completedLevelIds'] as List<dynamic>?;
+          if (rawCompleted != null) {
+            completedList = rawCompleted.map((e) => e.toString()).toSet();
+          }
+          final rawBest = decoded['bestMoves'] as Map<String, dynamic>?;
+          if (rawBest != null) {
+            for (final entry in rawBest.entries) {
+              if (entry.value is int) {
+                bestMoves[entry.key] = entry.value as int;
+              }
             }
           }
+          lastCompleted = decoded['lastCompletedLevelId'] as String?;
+          lastPlayed = decoded['lastPlayedLevelId'] as String?;
+          themeMode = decoded['themeMode'] as String?;
+          haptics = decoded['hapticsEnabled'] as bool? ?? true;
+          sound = decoded['soundEnabled'] as bool? ?? true;
+          reduceMotion = decoded['reduceMotion'] as bool? ?? false;
+          accessibilityShapes = decoded['accessibilityShapes'] as bool? ?? true;
         } catch (e) {
-          debugPrint('Failed to decode best moves: $e');
+          debugPrint('Failed to decode v2 store, falling back to legacy: $e');
+        }
+      }
+
+      // Fall back to legacy keys if v2 store was absent or empty
+      if (completedList.isEmpty && bestMoves.isEmpty && lastPlayed == null) {
+        final legacyCompleted = prefs.getStringList(_keyCompletedLevels) ?? [];
+        completedList = legacyCompleted.toSet();
+        final bestMovesJson = prefs.getString(_keyBestMoves);
+        if (bestMovesJson != null && bestMovesJson.isNotEmpty) {
+          try {
+            final decoded = jsonDecode(bestMovesJson) as Map<String, dynamic>;
+            for (final entry in decoded.entries) {
+              if (entry.value is int) {
+                bestMoves[entry.key] = entry.value as int;
+              }
+            }
+          } catch (_) {}
+        }
+        lastCompleted = prefs.getString(_keyLastCompleted);
+        lastPlayed = prefs.getString(_keyLastPlayed);
+      }
+
+      isDark ??= prefs.getBool(_keyThemeDark);
+      themeMode ??= prefs.getString(_keyThemeMode);
+      haptics = prefs.getBool(_keyHaptics) ?? haptics;
+      sound = prefs.getBool(_keySound) ?? sound;
+      reduceMotion = prefs.getBool(_keyReduceMotion) ?? reduceMotion;
+      accessibilityShapes =
+          prefs.getBool(_keyAccessibilityShapes) ?? accessibilityShapes;
+
+      // 2. Load active boards
+      final Map<String, ActiveBoardState> activeBoards = {};
+      final activeJson = prefs.getString(_keyActiveBoards);
+      if (activeJson != null && activeJson.isNotEmpty) {
+        try {
+          final decoded = jsonDecode(activeJson) as Map<String, dynamic>;
+          for (final entry in decoded.entries) {
+            final val = entry.value as Map<String, dynamic>;
+            final moves = val['moves'] as int? ?? 0;
+            final rawBridges = val['bridges'] as List<dynamic>? ?? [];
+            final List<Bridge> bridgeList = [];
+            for (final rb in rawBridges) {
+              final bMap = rb as Map<String, dynamic>;
+              final a = bMap['a'] as int;
+              final b = bMap['b'] as int;
+              final cVal = bMap['c'] as int;
+              final count = switch (cVal) {
+                2 => BridgeCount.double,
+                1 => BridgeCount.single,
+                _ => BridgeCount.none,
+              };
+              bridgeList.add(Bridge(islandAId: a, islandBId: b, count: count));
+            }
+            activeBoards[entry.key] =
+                ActiveBoardState(bridges: bridgeList, moveCount: moves);
+          }
+        } catch (e) {
+          debugPrint('Failed to decode active boards: $e');
         }
       }
 
       return ProgressData(
-        completedLevelIds: completedList.toSet(),
+        completedLevelIds: completedList,
         bestMoves: bestMoves,
         lastCompletedLevelId: lastCompleted,
         lastPlayedLevelId: lastPlayed,
@@ -117,6 +218,7 @@ final class SharedPreferencesProgressPersistence
         soundEnabled: sound,
         reduceMotion: reduceMotion,
         accessibilityShapes: accessibilityShapes,
+        activeBoards: activeBoards,
       );
     } catch (e) {
       debugPrint('Progress load failure (falling back to empty): $e');
@@ -133,18 +235,46 @@ final class SharedPreferencesProgressPersistence
   }) async {
     try {
       final prefs = await _getPrefs();
-      await Future.wait([
-        prefs.setStringList(_keyCompletedLevels, completedLevelIds.toList()),
-        prefs.setString(_keyBestMoves, jsonEncode(bestMoves)),
-        if (lastCompletedLevelId != null)
-          prefs.setString(_keyLastCompleted, lastCompletedLevelId)
-        else
-          prefs.remove(_keyLastCompleted),
-        if (lastPlayedLevelId != null)
-          prefs.setString(_keyLastPlayed, lastPlayedLevelId)
-        else
-          prefs.remove(_keyLastPlayed),
-      ]);
+
+      // Read current store to merge
+      final existingStoreStr = prefs.getString(_keyV2Store);
+      Map<String, dynamic> store = {};
+      if (existingStoreStr != null && existingStoreStr.isNotEmpty) {
+        try {
+          store = jsonDecode(existingStoreStr) as Map<String, dynamic>;
+        } catch (_) {}
+      }
+
+      store['completedLevelIds'] = completedLevelIds.toList();
+      store['bestMoves'] = bestMoves;
+      if (lastCompletedLevelId != null) {
+        store['lastCompletedLevelId'] = lastCompletedLevelId;
+      } else {
+        store.remove('lastCompletedLevelId');
+      }
+      if (lastPlayedLevelId != null) {
+        store['lastPlayedLevelId'] = lastPlayedLevelId;
+      } else {
+        store.remove('lastPlayedLevelId');
+      }
+
+      // 1. Atomic write to consolidated store first
+      await prefs.setString(_keyV2Store, jsonEncode(store));
+
+      // 2. Sequential writes for legacy key compatibility
+      await prefs.setStringList(
+          _keyCompletedLevels, completedLevelIds.toList());
+      await prefs.setString(_keyBestMoves, jsonEncode(bestMoves));
+      if (lastCompletedLevelId != null) {
+        await prefs.setString(_keyLastCompleted, lastCompletedLevelId);
+      } else {
+        await prefs.remove(_keyLastCompleted);
+      }
+      if (lastPlayedLevelId != null) {
+        await prefs.setString(_keyLastPlayed, lastPlayedLevelId);
+      } else {
+        await prefs.remove(_keyLastPlayed);
+      }
     } catch (e) {
       debugPrint('Failed to persist progress: $e');
     }
@@ -154,18 +284,35 @@ final class SharedPreferencesProgressPersistence
   Future<void> saveThemeMode(dynamic themeMode) async {
     try {
       final prefs = await _getPrefs();
+      String? modeStr;
+      bool? darkBool;
       if (themeMode is NodalisThemeMode) {
-        await Future.wait([
-          prefs.setString(_keyThemeMode, themeMode.name),
-          prefs.setBool(_keyThemeDark, themeMode.isDark),
-        ]);
+        modeStr = themeMode.name;
+        darkBool = themeMode.isDark;
       } else if (themeMode is bool) {
-        await Future.wait([
-          prefs.setBool(_keyThemeDark, themeMode),
-          prefs.setString(_keyThemeMode, themeMode ? 'dark' : 'light'),
-        ]);
+        darkBool = themeMode;
+        modeStr = themeMode ? 'dark' : 'light';
       } else if (themeMode is String) {
-        await prefs.setString(_keyThemeMode, themeMode);
+        modeStr = themeMode;
+        darkBool = themeMode != 'light';
+      }
+
+      if (modeStr != null) {
+        // Update V2 store
+        final existingStoreStr = prefs.getString(_keyV2Store);
+        Map<String, dynamic> store = {};
+        if (existingStoreStr != null && existingStoreStr.isNotEmpty) {
+          try {
+            store = jsonDecode(existingStoreStr) as Map<String, dynamic>;
+          } catch (_) {}
+        }
+        store['themeMode'] = modeStr;
+        await prefs.setString(_keyV2Store, jsonEncode(store));
+
+        await prefs.setString(_keyThemeMode, modeStr);
+      }
+      if (darkBool != null) {
+        await prefs.setBool(_keyThemeDark, darkBool);
       }
     } catch (e) {
       debugPrint('Failed to persist theme mode: $e');
@@ -181,14 +328,75 @@ final class SharedPreferencesProgressPersistence
   }) async {
     try {
       final prefs = await _getPrefs();
-      await Future.wait([
-        prefs.setBool(_keyHaptics, hapticsEnabled),
-        prefs.setBool(_keySound, soundEnabled),
-        prefs.setBool(_keyReduceMotion, reduceMotion),
-        prefs.setBool(_keyAccessibilityShapes, accessibilityShapes),
-      ]);
+
+      // Update V2 store
+      final existingStoreStr = prefs.getString(_keyV2Store);
+      Map<String, dynamic> store = {};
+      if (existingStoreStr != null && existingStoreStr.isNotEmpty) {
+        try {
+          store = jsonDecode(existingStoreStr) as Map<String, dynamic>;
+        } catch (_) {}
+      }
+      store['hapticsEnabled'] = hapticsEnabled;
+      store['soundEnabled'] = soundEnabled;
+      store['reduceMotion'] = reduceMotion;
+      store['accessibilityShapes'] = accessibilityShapes;
+      await prefs.setString(_keyV2Store, jsonEncode(store));
+
+      await prefs.setBool(_keyHaptics, hapticsEnabled);
+      await prefs.setBool(_keySound, soundEnabled);
+      await prefs.setBool(_keyReduceMotion, reduceMotion);
+      await prefs.setBool(_keyAccessibilityShapes, accessibilityShapes);
     } catch (e) {
       debugPrint('Failed to persist settings: $e');
+    }
+  }
+
+  @override
+  Future<void> saveActiveBoard({
+    required String levelId,
+    required List<Bridge> bridges,
+    required int moveCount,
+  }) async {
+    try {
+      final prefs = await _getPrefs();
+      final activeJson = prefs.getString(_keyActiveBoards);
+      Map<String, dynamic> map = {};
+      if (activeJson != null && activeJson.isNotEmpty) {
+        try {
+          map = jsonDecode(activeJson) as Map<String, dynamic>;
+        } catch (_) {}
+      }
+      map[levelId] = {
+        'moves': moveCount,
+        'bridges': bridges
+            .where((b) => b.isActive)
+            .map(
+                (b) => {'a': b.islandAId, 'b': b.islandBId, 'c': b.count.value})
+            .toList(),
+      };
+      await prefs.setString(_keyActiveBoards, jsonEncode(map));
+    } catch (e) {
+      debugPrint('Failed to save active board: $e');
+    }
+  }
+
+  @override
+  Future<void> clearActiveBoard(String levelId) async {
+    try {
+      final prefs = await _getPrefs();
+      final activeJson = prefs.getString(_keyActiveBoards);
+      if (activeJson != null && activeJson.isNotEmpty) {
+        try {
+          final map = jsonDecode(activeJson) as Map<String, dynamic>;
+          if (map.containsKey(levelId)) {
+            map.remove(levelId);
+            await prefs.setString(_keyActiveBoards, jsonEncode(map));
+          }
+        } catch (_) {}
+      }
+    } catch (e) {
+      debugPrint('Failed to clear active board: $e');
     }
   }
 
@@ -196,12 +404,12 @@ final class SharedPreferencesProgressPersistence
   Future<void> clear() async {
     try {
       final prefs = await _getPrefs();
-      await Future.wait([
-        prefs.remove(_keyCompletedLevels),
-        prefs.remove(_keyBestMoves),
-        prefs.remove(_keyLastCompleted),
-        prefs.remove(_keyLastPlayed),
-      ]);
+      await prefs.remove(_keyV2Store);
+      await prefs.remove(_keyActiveBoards);
+      await prefs.remove(_keyCompletedLevels);
+      await prefs.remove(_keyBestMoves);
+      await prefs.remove(_keyLastCompleted);
+      await prefs.remove(_keyLastPlayed);
     } catch (e) {
       debugPrint('Failed to clear progress: $e');
     }
@@ -236,6 +444,7 @@ final class InMemoryProgressPersistence implements ProgressPersistence {
       soundEnabled: _data.soundEnabled,
       reduceMotion: _data.reduceMotion,
       accessibilityShapes: _data.accessibilityShapes,
+      activeBoards: _data.activeBoards,
     );
   }
 
@@ -264,6 +473,7 @@ final class InMemoryProgressPersistence implements ProgressPersistence {
       soundEnabled: _data.soundEnabled,
       reduceMotion: _data.reduceMotion,
       accessibilityShapes: _data.accessibilityShapes,
+      activeBoards: _data.activeBoards,
     );
   }
 
@@ -285,6 +495,49 @@ final class InMemoryProgressPersistence implements ProgressPersistence {
       soundEnabled: soundEnabled,
       reduceMotion: reduceMotion,
       accessibilityShapes: accessibilityShapes,
+      activeBoards: _data.activeBoards,
+    );
+  }
+
+  @override
+  Future<void> saveActiveBoard({
+    required String levelId,
+    required List<Bridge> bridges,
+    required int moveCount,
+  }) async {
+    final updated = Map<String, ActiveBoardState>.from(_data.activeBoards);
+    updated[levelId] = ActiveBoardState(bridges: bridges, moveCount: moveCount);
+    _data = ProgressData(
+      completedLevelIds: _data.completedLevelIds,
+      bestMoves: _data.bestMoves,
+      lastCompletedLevelId: _data.lastCompletedLevelId,
+      lastPlayedLevelId: _data.lastPlayedLevelId,
+      isDarkMode: _data.isDarkMode,
+      themeMode: _data.themeMode,
+      hapticsEnabled: _data.hapticsEnabled,
+      soundEnabled: _data.soundEnabled,
+      reduceMotion: _data.reduceMotion,
+      accessibilityShapes: _data.accessibilityShapes,
+      activeBoards: updated,
+    );
+  }
+
+  @override
+  Future<void> clearActiveBoard(String levelId) async {
+    final updated = Map<String, ActiveBoardState>.from(_data.activeBoards);
+    updated.remove(levelId);
+    _data = ProgressData(
+      completedLevelIds: _data.completedLevelIds,
+      bestMoves: _data.bestMoves,
+      lastCompletedLevelId: _data.lastCompletedLevelId,
+      lastPlayedLevelId: _data.lastPlayedLevelId,
+      isDarkMode: _data.isDarkMode,
+      themeMode: _data.themeMode,
+      hapticsEnabled: _data.hapticsEnabled,
+      soundEnabled: _data.soundEnabled,
+      reduceMotion: _data.reduceMotion,
+      accessibilityShapes: _data.accessibilityShapes,
+      activeBoards: updated,
     );
   }
 
