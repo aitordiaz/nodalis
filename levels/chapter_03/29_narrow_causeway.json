@@ -1,0 +1,81 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch03_09_narrow_causeway",
+  "version": 1,
+  "chapterId": 3,
+  "indexInChapter": 9,
+  "metadata": {
+    "titleKey": "level_03_09_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "hard",
+    "estimatedSolveTimeSeconds": 132,
+    "parMoves": 11,
+    "mechanics": [
+      "corridor_chain",
+      "pigeonhole"
+    ]
+  },
+  "grid": {
+    "width": 8,
+    "height": 8
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 2,
+      "capacity": 1
+    },
+    {
+      "id": 2,
+      "x": 5,
+      "y": 0,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 3,
+      "y": 4,
+      "capacity": 2
+    },
+    {
+      "id": 4,
+      "x": 5,
+      "y": 6,
+      "capacity": 3
+    },
+    {
+      "id": 5,
+      "x": 5,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 6,
+      "x": 2,
+      "y": 6,
+      "capacity": 2
+    },
+    {
+      "id": 7,
+      "x": 3,
+      "y": 0,
+      "capacity": 2
+    },
+    {
+      "id": 8,
+      "x": 1,
+      "y": 4,
+      "capacity": 2
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "aa097f6e5459e5e447be5487cfce0971e3dbd4d146cbefce535a84111a3aa91d",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

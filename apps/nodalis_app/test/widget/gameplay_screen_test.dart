@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nodalis_app/content/level_repository.dart';
 import 'package:nodalis_app/main.dart';
@@ -189,7 +190,7 @@ void main() {
     });
 
     testWidgets(
-        'theme toggle cycles between light, dark, and OLED battery saver',
+        'theme toggle cycles between light, dark, OLED, and High Contrast',
         (tester) async {
       await tester.binding.setSurfaceSize(const Size(600, 900));
 
@@ -212,10 +213,80 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byIcon(Icons.battery_saver_rounded), findsOneWidget);
 
-      // Tap theme button -> back to Light mode
+      // Tap theme button -> High Contrast mode
       await tester.tap(find.byIcon(Icons.battery_saver_rounded));
       await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.contrast_rounded), findsOneWidget);
+
+      // Tap theme button -> back to Light mode
+      await tester.tap(find.byIcon(Icons.contrast_rounded));
+      await tester.pumpAndSettle();
       expect(find.byIcon(Icons.light_mode_outlined), findsOneWidget);
+    });
+
+    testWidgets('settings dialog opens and updates accessibility switches',
+        (tester) async {
+      await tester.binding.setSurfaceSize(const Size(600, 900));
+
+      await tester.pumpWidget(NodalisApp(
+        levelRepository: levelRepo,
+        progressRepository: progressRepo,
+      ));
+      await tester.pumpAndSettle();
+
+      // Tap settings button on top bar
+      expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.settings_outlined));
+      await tester.pumpAndSettle();
+
+      // Dialog opens
+      expect(find.text('Settings'), findsOneWidget);
+      expect(find.text('Haptic Feedback'), findsOneWidget);
+      expect(find.text('Multi-Channel Status Shapes'), findsOneWidget);
+      expect(find.text('Reduce Motion'), findsOneWidget);
+
+      // Tap Reduce Motion switch
+      final switches = find.byType(Switch);
+      expect(switches, findsNWidgets(3));
+      await tester.tap(switches.last);
+      await tester.pumpAndSettle();
+
+      expect(progressRepo.reduceMotion, isTrue);
+
+      // Tap Done
+      await tester.tap(find.text('Done'));
+      await tester.pumpAndSettle();
+      expect(find.text('Settings'), findsNothing);
+    });
+
+    testWidgets(
+        'keyboard shortcuts support island navigation and bridge building',
+        (tester) async {
+      await tester.binding.setSurfaceSize(const Size(600, 900));
+
+      await tester.pumpWidget(NodalisApp(
+        levelRepository: levelRepo,
+        progressRepository: progressRepo,
+      ));
+      await tester.pumpAndSettle();
+
+      // Enter Level 1
+      await tester.tap(find.text('1'));
+      await tester.pumpAndSettle();
+
+      // Navigate using ArrowRight key to select first island
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+
+      // Construct bridge to the right using Shift + ArrowRight
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pumpAndSettle();
+
+      // Level 1 has par 1 bridge between (1,2) and (3,2) -> connects and solves!
+      expect(find.text('Level Solved'), findsOneWidget);
     });
 
     testWidgets(

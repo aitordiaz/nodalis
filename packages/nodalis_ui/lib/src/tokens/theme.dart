@@ -5,7 +5,8 @@ import 'palette.dart';
 enum NodalisThemeMode {
   light,
   dark,
-  oled;
+  oled,
+  highContrast;
 
   bool get isDark => this != NodalisThemeMode.light;
 
@@ -16,6 +17,8 @@ enum NodalisThemeMode {
       case NodalisThemeMode.dark:
         return NodalisThemeMode.oled;
       case NodalisThemeMode.oled:
+        return NodalisThemeMode.highContrast;
+      case NodalisThemeMode.highContrast:
         return NodalisThemeMode.light;
     }
   }
@@ -28,6 +31,8 @@ enum NodalisThemeMode {
         return 'Dark';
       case NodalisThemeMode.oled:
         return 'OLED Battery Saver';
+      case NodalisThemeMode.highContrast:
+        return 'High Contrast';
     }
   }
 }
@@ -66,7 +71,7 @@ final class NodalisThemeData {
   static const highContrast = NodalisThemeData(
     palette: NodalisPalette.highContrast,
     isDark: true,
-    mode: NodalisThemeMode.dark,
+    mode: NodalisThemeMode.highContrast,
   );
 
   static NodalisThemeData fromMode(NodalisThemeMode mode) {
@@ -77,6 +82,8 @@ final class NodalisThemeData {
         return dark;
       case NodalisThemeMode.oled:
         return oled;
+      case NodalisThemeMode.highContrast:
+        return highContrast;
     }
   }
 

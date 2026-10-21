@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:nodalis_level_format/nodalis_level_format.dart';
 import 'package:nodalis_ui/nodalis_ui.dart';
 import 'progress_persistence.dart';
@@ -11,6 +12,10 @@ class ProgressRepository extends ChangeNotifier {
   String? _lastCompletedLevelId;
   String? _lastPlayedLevelId;
   bool _isLoaded = false;
+  bool _hapticsEnabled = true;
+  bool _soundEnabled = true;
+  bool _reduceMotion = false;
+  bool _accessibilityShapes = true;
 
   ProgressRepository({ProgressPersistence? persistence})
       : _persistence = persistence ?? SharedPreferencesProgressPersistence();
@@ -24,6 +29,40 @@ class ProgressRepository extends ChangeNotifier {
   Map<String, int> get bestMoves => Map.unmodifiable(_bestMoves);
   String? get lastCompletedLevelId => _lastCompletedLevelId;
   String? get lastPlayedLevelId => _lastPlayedLevelId;
+  bool get hapticsEnabled => _hapticsEnabled;
+  bool get soundEnabled => _soundEnabled;
+  bool get reduceMotion => _reduceMotion;
+  bool get accessibilityShapes => _accessibilityShapes;
+
+  void triggerHaptic({bool medium = false}) {
+    if (_hapticsEnabled) {
+      if (medium) {
+        HapticFeedback.mediumImpact();
+      } else {
+        HapticFeedback.selectionClick();
+      }
+    }
+  }
+
+  void updateSettings({
+    bool? hapticsEnabled,
+    bool? soundEnabled,
+    bool? reduceMotion,
+    bool? accessibilityShapes,
+  }) {
+    if (hapticsEnabled != null) _hapticsEnabled = hapticsEnabled;
+    if (soundEnabled != null) _soundEnabled = soundEnabled;
+    if (reduceMotion != null) _reduceMotion = reduceMotion;
+    if (accessibilityShapes != null) _accessibilityShapes = accessibilityShapes;
+    notifyListeners();
+
+    _persistence.saveSettings(
+      hapticsEnabled: _hapticsEnabled,
+      soundEnabled: _soundEnabled,
+      reduceMotion: _reduceMotion,
+      accessibilityShapes: _accessibilityShapes,
+    );
+  }
 
   /// Loads saved progress asynchronously from disk or browser local storage.
   Future<void> load() async {
@@ -36,6 +75,10 @@ class ProgressRepository extends ChangeNotifier {
 
     _lastCompletedLevelId = data.lastCompletedLevelId;
     _lastPlayedLevelId = data.lastPlayedLevelId;
+    _hapticsEnabled = data.hapticsEnabled;
+    _soundEnabled = data.soundEnabled;
+    _reduceMotion = data.reduceMotion;
+    _accessibilityShapes = data.accessibilityShapes;
     _isLoaded = true;
     notifyListeners();
   }

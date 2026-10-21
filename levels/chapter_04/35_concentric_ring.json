@@ -1,0 +1,87 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch04_05_concentric_ring",
+  "version": 1,
+  "chapterId": 4,
+  "indexInChapter": 5,
+  "metadata": {
+    "titleKey": "level_04_05_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "hard",
+    "estimatedSolveTimeSeconds": 150,
+    "parMoves": 13,
+    "mechanics": [
+      "concentric_loops",
+      "bottleneck"
+    ]
+  },
+  "grid": {
+    "width": 8,
+    "height": 8
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 4,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 2,
+      "x": 2,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 6,
+      "y": 1,
+      "capacity": 3
+    },
+    {
+      "id": 4,
+      "x": 0,
+      "y": 0,
+      "capacity": 2
+    },
+    {
+      "id": 5,
+      "x": 6,
+      "y": 4,
+      "capacity": 2
+    },
+    {
+      "id": 6,
+      "x": 0,
+      "y": 6,
+      "capacity": 2
+    },
+    {
+      "id": 7,
+      "x": 4,
+      "y": 6,
+      "capacity": 3
+    },
+    {
+      "id": 8,
+      "x": 7,
+      "y": 0,
+      "capacity": 1
+    },
+    {
+      "id": 9,
+      "x": 2,
+      "y": 6,
+      "capacity": 5
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "6d2ea4d2c817fba3d2bf99aa9522c4dd8668a3edc6a5b53a6caa0b4282b04040",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

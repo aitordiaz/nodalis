@@ -1,0 +1,87 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch04_09_the_octopus",
+  "version": 1,
+  "chapterId": 4,
+  "indexInChapter": 9,
+  "metadata": {
+    "titleKey": "level_04_09_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "hard",
+    "estimatedSolveTimeSeconds": 190,
+    "parMoves": 13,
+    "mechanics": [
+      "high_degree_6",
+      "extended_reach"
+    ]
+  },
+  "grid": {
+    "width": 9,
+    "height": 9
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 6,
+      "y": 8,
+      "capacity": 1
+    },
+    {
+      "id": 2,
+      "x": 0,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 3,
+      "y": 5,
+      "capacity": 3
+    },
+    {
+      "id": 4,
+      "x": 0,
+      "y": 8,
+      "capacity": 2
+    },
+    {
+      "id": 5,
+      "x": 7,
+      "y": 1,
+      "capacity": 3
+    },
+    {
+      "id": 6,
+      "x": 2,
+      "y": 8,
+      "capacity": 4
+    },
+    {
+      "id": 7,
+      "x": 2,
+      "y": 4,
+      "capacity": 2
+    },
+    {
+      "id": 8,
+      "x": 7,
+      "y": 5,
+      "capacity": 3
+    },
+    {
+      "id": 9,
+      "x": 3,
+      "y": 7,
+      "capacity": 2
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "9d4424e96b502e5c424c9263448059f9cf18ab57754b1ea111ec679ce53458ad",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

@@ -71,6 +71,13 @@ class _NodalisAppState extends State<NodalisApp> {
     _progressRepository.saveThemeMode(_themeMode);
   }
 
+  void _setTheme(NodalisThemeMode mode) {
+    setState(() {
+      _themeMode = mode;
+    });
+    _progressRepository.saveThemeMode(_themeMode);
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeData = NodalisThemeData.fromMode(_themeMode);
@@ -92,6 +99,7 @@ class _NodalisAppState extends State<NodalisApp> {
                 levelRepository: _levelRepository,
                 progressRepository: _progressRepository,
                 onToggleTheme: _toggleTheme,
+                onSetTheme: _setTheme,
                 themeMode: _themeMode,
               ),
       ),

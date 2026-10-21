@@ -112,6 +112,8 @@ void main() {
       expect(repo.totalLevels, 4);
       expect(repo.getChapterTitle(1), 'First Connections');
       expect(repo.getChapterTitle(2), 'Parallel Paths');
+      expect(repo.getChapterTitle(3), 'The Crossroads');
+      expect(repo.getChapterTitle(4), "Master's Web");
     });
 
     test('getNextLevel transitions within chapter and crosses chapter boundary',

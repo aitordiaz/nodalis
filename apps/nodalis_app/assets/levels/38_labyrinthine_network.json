@@ -1,0 +1,87 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch04_08_labyrinthine_network",
+  "version": 1,
+  "chapterId": 4,
+  "indexInChapter": 8,
+  "metadata": {
+    "titleKey": "level_04_08_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "hard",
+    "estimatedSolveTimeSeconds": 180,
+    "parMoves": 13,
+    "mechanics": [
+      "labyrinth",
+      "parity_traps"
+    ]
+  },
+  "grid": {
+    "width": 8,
+    "height": 9
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 7,
+      "y": 5,
+      "capacity": 3
+    },
+    {
+      "id": 2,
+      "x": 5,
+      "y": 8,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 1,
+      "y": 2,
+      "capacity": 2
+    },
+    {
+      "id": 4,
+      "x": 7,
+      "y": 2,
+      "capacity": 3
+    },
+    {
+      "id": 5,
+      "x": 1,
+      "y": 8,
+      "capacity": 1
+    },
+    {
+      "id": 6,
+      "x": 7,
+      "y": 8,
+      "capacity": 2
+    },
+    {
+      "id": 7,
+      "x": 3,
+      "y": 2,
+      "capacity": 3
+    },
+    {
+      "id": 8,
+      "x": 3,
+      "y": 7,
+      "capacity": 1
+    },
+    {
+      "id": 9,
+      "x": 1,
+      "y": 0,
+      "capacity": 1
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "ae78bc37f4155a08b37f0c033892c8b9a78f52c63894273a9723150d6b3a0007",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

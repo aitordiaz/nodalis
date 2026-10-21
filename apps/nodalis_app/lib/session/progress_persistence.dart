@@ -12,6 +12,10 @@ final class ProgressData {
   final String? lastPlayedLevelId;
   final bool? isDarkMode;
   final String? themeMode;
+  final bool hapticsEnabled;
+  final bool soundEnabled;
+  final bool reduceMotion;
+  final bool accessibilityShapes;
 
   const ProgressData({
     this.completedLevelIds = const {},
@@ -20,6 +24,10 @@ final class ProgressData {
     this.lastPlayedLevelId,
     this.isDarkMode,
     this.themeMode,
+    this.hapticsEnabled = true,
+    this.soundEnabled = true,
+    this.reduceMotion = false,
+    this.accessibilityShapes = true,
   });
 }
 
@@ -36,6 +44,13 @@ abstract interface class ProgressPersistence {
 
   Future<void> saveThemeMode(dynamic themeMode);
 
+  Future<void> saveSettings({
+    required bool hapticsEnabled,
+    required bool soundEnabled,
+    required bool reduceMotion,
+    required bool accessibilityShapes,
+  });
+
   Future<void> clear();
 }
 
@@ -49,6 +64,11 @@ final class SharedPreferencesProgressPersistence
   static const _keyLastPlayed = 'nodalis_last_played_v1';
   static const _keyThemeDark = 'nodalis_theme_dark_v1';
   static const _keyThemeMode = 'nodalis_theme_mode_v1';
+  static const _keyHaptics = 'nodalis_settings_haptics_v1';
+  static const _keySound = 'nodalis_settings_sound_v1';
+  static const _keyReduceMotion = 'nodalis_settings_reduce_motion_v1';
+  static const _keyAccessibilityShapes =
+      'nodalis_settings_accessibility_shapes_v1';
 
   SharedPreferences? _cachedPrefs;
 
@@ -66,6 +86,11 @@ final class SharedPreferencesProgressPersistence
       final lastPlayed = prefs.getString(_keyLastPlayed);
       final isDark = prefs.getBool(_keyThemeDark);
       final themeMode = prefs.getString(_keyThemeMode);
+      final haptics = prefs.getBool(_keyHaptics) ?? true;
+      final sound = prefs.getBool(_keySound) ?? true;
+      final reduceMotion = prefs.getBool(_keyReduceMotion) ?? false;
+      final accessibilityShapes =
+          prefs.getBool(_keyAccessibilityShapes) ?? true;
 
       final Map<String, int> bestMoves = {};
       if (bestMovesJson != null && bestMovesJson.isNotEmpty) {
@@ -88,6 +113,10 @@ final class SharedPreferencesProgressPersistence
         lastPlayedLevelId: lastPlayed,
         isDarkMode: isDark,
         themeMode: themeMode,
+        hapticsEnabled: haptics,
+        soundEnabled: sound,
+        reduceMotion: reduceMotion,
+        accessibilityShapes: accessibilityShapes,
       );
     } catch (e) {
       debugPrint('Progress load failure (falling back to empty): $e');
@@ -144,6 +173,26 @@ final class SharedPreferencesProgressPersistence
   }
 
   @override
+  Future<void> saveSettings({
+    required bool hapticsEnabled,
+    required bool soundEnabled,
+    required bool reduceMotion,
+    required bool accessibilityShapes,
+  }) async {
+    try {
+      final prefs = await _getPrefs();
+      await Future.wait([
+        prefs.setBool(_keyHaptics, hapticsEnabled),
+        prefs.setBool(_keySound, soundEnabled),
+        prefs.setBool(_keyReduceMotion, reduceMotion),
+        prefs.setBool(_keyAccessibilityShapes, accessibilityShapes),
+      ]);
+    } catch (e) {
+      debugPrint('Failed to persist settings: $e');
+    }
+  }
+
+  @override
   Future<void> clear() async {
     try {
       final prefs = await _getPrefs();
@@ -183,6 +232,10 @@ final class InMemoryProgressPersistence implements ProgressPersistence {
       lastPlayedLevelId: lastPlayedLevelId,
       isDarkMode: _data.isDarkMode,
       themeMode: _data.themeMode,
+      hapticsEnabled: _data.hapticsEnabled,
+      soundEnabled: _data.soundEnabled,
+      reduceMotion: _data.reduceMotion,
+      accessibilityShapes: _data.accessibilityShapes,
     );
   }
 
@@ -207,6 +260,31 @@ final class InMemoryProgressPersistence implements ProgressPersistence {
       lastPlayedLevelId: _data.lastPlayedLevelId,
       isDarkMode: darkBool,
       themeMode: modeStr,
+      hapticsEnabled: _data.hapticsEnabled,
+      soundEnabled: _data.soundEnabled,
+      reduceMotion: _data.reduceMotion,
+      accessibilityShapes: _data.accessibilityShapes,
+    );
+  }
+
+  @override
+  Future<void> saveSettings({
+    required bool hapticsEnabled,
+    required bool soundEnabled,
+    required bool reduceMotion,
+    required bool accessibilityShapes,
+  }) async {
+    _data = ProgressData(
+      completedLevelIds: _data.completedLevelIds,
+      bestMoves: _data.bestMoves,
+      lastCompletedLevelId: _data.lastCompletedLevelId,
+      lastPlayedLevelId: _data.lastPlayedLevelId,
+      isDarkMode: _data.isDarkMode,
+      themeMode: _data.themeMode,
+      hapticsEnabled: hapticsEnabled,
+      soundEnabled: soundEnabled,
+      reduceMotion: reduceMotion,
+      accessibilityShapes: accessibilityShapes,
     );
   }
 

@@ -1,0 +1,87 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch04_06_the_spider",
+  "version": 1,
+  "chapterId": 4,
+  "indexInChapter": 6,
+  "metadata": {
+    "titleKey": "level_04_06_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "hard",
+    "estimatedSolveTimeSeconds": 160,
+    "parMoves": 13,
+    "mechanics": [
+      "high_degree_6",
+      "multi_arm"
+    ]
+  },
+  "grid": {
+    "width": 8,
+    "height": 8
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 3,
+      "y": 7,
+      "capacity": 4
+    },
+    {
+      "id": 2,
+      "x": 1,
+      "y": 7,
+      "capacity": 3
+    },
+    {
+      "id": 3,
+      "x": 6,
+      "y": 0,
+      "capacity": 1
+    },
+    {
+      "id": 4,
+      "x": 1,
+      "y": 0,
+      "capacity": 4
+    },
+    {
+      "id": 5,
+      "x": 7,
+      "y": 1,
+      "capacity": 1
+    },
+    {
+      "id": 6,
+      "x": 4,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 7,
+      "x": 1,
+      "y": 5,
+      "capacity": 3
+    },
+    {
+      "id": 8,
+      "x": 4,
+      "y": 0,
+      "capacity": 5
+    },
+    {
+      "id": 9,
+      "x": 7,
+      "y": 7,
+      "capacity": 3
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "16aa9624d32a80a4acc9f589606a6a153e498af612a699f70811592c33243e75",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

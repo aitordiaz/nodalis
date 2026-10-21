@@ -12,6 +12,7 @@ final class BoardPainter extends CustomPainter {
   final BoardViewModel viewModel;
   final BoardGeometry geometry;
   final NodalisPalette palette;
+  final bool accessibilityShapes;
 
   // Reusable, pre-allocated Paint objects
   late final Paint _gridDotPaint;
@@ -44,6 +45,7 @@ final class BoardPainter extends CustomPainter {
     required this.viewModel,
     required this.geometry,
     required this.palette,
+    this.accessibilityShapes = true,
   }) : super() {
     _initPaints();
     _initTextPainters();
@@ -317,7 +319,7 @@ final class BoardPainter extends CustomPainter {
           center, NodalisDimensions.islandVisualRadius, strokePaint);
 
       // 3. Multi-channel accessibility indicator: subtle concentric ring for satisfied
-      if (isSatisfied && !isExceeded) {
+      if (accessibilityShapes && isSatisfied && !isExceeded) {
         canvas.drawCircle(center, NodalisDimensions.islandVisualRadius - 4.5,
             _islandSatisfiedStrokePaint);
       }
@@ -330,13 +332,15 @@ final class BoardPainter extends CustomPainter {
       }
 
       // 5. Draw connection progress pips from precomputed positions
-      final pips = geometry.islandPipPositions[island.id];
-      if (pips != null && pips.isNotEmpty) {
-        const pipRadius = 2.0;
-        for (var i = 0; i < pips.length; i++) {
-          final pipCenter = pips[i];
-          final paint = i < connected ? _pipFilledPaint : _pipEmptyPaint;
-          canvas.drawCircle(pipCenter, pipRadius, paint);
+      if (accessibilityShapes) {
+        final pips = geometry.islandPipPositions[island.id];
+        if (pips != null && pips.isNotEmpty) {
+          const pipRadius = 2.0;
+          for (var i = 0; i < pips.length; i++) {
+            final pipCenter = pips[i];
+            final paint = i < connected ? _pipFilledPaint : _pipEmptyPaint;
+            canvas.drawCircle(pipCenter, pipRadius, paint);
+          }
         }
       }
     }
@@ -346,6 +350,7 @@ final class BoardPainter extends CustomPainter {
   bool shouldRepaint(covariant BoardPainter oldDelegate) {
     return viewModel != oldDelegate.viewModel ||
         geometry != oldDelegate.geometry ||
-        palette != oldDelegate.palette;
+        palette != oldDelegate.palette ||
+        accessibilityShapes != oldDelegate.accessibilityShapes;
   }
 }

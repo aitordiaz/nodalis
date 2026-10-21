@@ -1,0 +1,81 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch03_08_the_citadel",
+  "version": 1,
+  "chapterId": 3,
+  "indexInChapter": 8,
+  "metadata": {
+    "titleKey": "level_03_08_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "hard",
+    "estimatedSolveTimeSeconds": 124,
+    "parMoves": 11,
+    "mechanics": [
+      "perimeter_defense",
+      "hub_routing"
+    ]
+  },
+  "grid": {
+    "width": 8,
+    "height": 8
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 1,
+      "y": 1,
+      "capacity": 1
+    },
+    {
+      "id": 2,
+      "x": 6,
+      "y": 0,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 4,
+      "y": 4,
+      "capacity": 5
+    },
+    {
+      "id": 4,
+      "x": 6,
+      "y": 4,
+      "capacity": 2
+    },
+    {
+      "id": 5,
+      "x": 0,
+      "y": 2,
+      "capacity": 3
+    },
+    {
+      "id": 6,
+      "x": 4,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 7,
+      "x": 0,
+      "y": 4,
+      "capacity": 4
+    },
+    {
+      "id": 8,
+      "x": 0,
+      "y": 0,
+      "capacity": 3
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "8663cef2aa1568be987d10008e9b769ab1146967dbcf1bf8453be53cd80b1447",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

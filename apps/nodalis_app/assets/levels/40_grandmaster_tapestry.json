@@ -1,0 +1,93 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch04_10_grandmaster_tapestry",
+  "version": 1,
+  "chapterId": 4,
+  "indexInChapter": 10,
+  "metadata": {
+    "titleKey": "level_04_10_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "hard",
+    "estimatedSolveTimeSeconds": 200,
+    "parMoves": 14,
+    "mechanics": [
+      "grandmaster_climax",
+      "complex_interlock"
+    ]
+  },
+  "grid": {
+    "width": 9,
+    "height": 9
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 3,
+      "y": 8,
+      "capacity": 1
+    },
+    {
+      "id": 2,
+      "x": 5,
+      "y": 0,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 3,
+      "y": 0,
+      "capacity": 1
+    },
+    {
+      "id": 4,
+      "x": 4,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 5,
+      "x": 1,
+      "y": 8,
+      "capacity": 3
+    },
+    {
+      "id": 6,
+      "x": 4,
+      "y": 6,
+      "capacity": 2
+    },
+    {
+      "id": 7,
+      "x": 8,
+      "y": 0,
+      "capacity": 2
+    },
+    {
+      "id": 8,
+      "x": 1,
+      "y": 2,
+      "capacity": 2
+    },
+    {
+      "id": 9,
+      "x": 1,
+      "y": 6,
+      "capacity": 5
+    },
+    {
+      "id": 10,
+      "x": 8,
+      "y": 3,
+      "capacity": 2
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "95465c9320c066bdbe0343ae46458a891e4e9a11a395fd7308aa137246562801",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

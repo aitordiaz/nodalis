@@ -1,0 +1,75 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch03_01_central_junction",
+  "version": 1,
+  "chapterId": 3,
+  "indexInChapter": 1,
+  "metadata": {
+    "titleKey": "level_03_01_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "medium",
+    "estimatedSolveTimeSeconds": 68,
+    "parMoves": 10,
+    "mechanics": [
+      "crossroads",
+      "saturation"
+    ]
+  },
+  "grid": {
+    "width": 7,
+    "height": 7
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 5,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 2,
+      "x": 3,
+      "y": 5,
+      "capacity": 3
+    },
+    {
+      "id": 3,
+      "x": 1,
+      "y": 2,
+      "capacity": 1
+    },
+    {
+      "id": 4,
+      "x": 0,
+      "y": 1,
+      "capacity": 3
+    },
+    {
+      "id": 5,
+      "x": 3,
+      "y": 2,
+      "capacity": 2
+    },
+    {
+      "id": 6,
+      "x": 5,
+      "y": 3,
+      "capacity": 1
+    },
+    {
+      "id": 7,
+      "x": 0,
+      "y": 5,
+      "capacity": 4
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "7b3871a5973238011b49fb2126dcef73370f9c8160d960a1b394c337417c6964",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

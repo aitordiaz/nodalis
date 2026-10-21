@@ -172,5 +172,30 @@ void main() {
       await restored.load();
       expect(restored.completedLevelIds, isEmpty);
     });
+
+    test('settings and accessibility options update and persist', () async {
+      final persistence = InMemoryProgressPersistence();
+      final repo = ProgressRepository(persistence: persistence);
+
+      expect(repo.hapticsEnabled, isTrue);
+      expect(repo.reduceMotion, isFalse);
+      expect(repo.accessibilityShapes, isTrue);
+
+      repo.updateSettings(
+        hapticsEnabled: false,
+        reduceMotion: true,
+        accessibilityShapes: false,
+      );
+
+      expect(repo.hapticsEnabled, isFalse);
+      expect(repo.reduceMotion, isTrue);
+      expect(repo.accessibilityShapes, isFalse);
+
+      final restored = ProgressRepository(persistence: persistence);
+      await restored.load();
+      expect(restored.hapticsEnabled, isFalse);
+      expect(restored.reduceMotion, isTrue);
+      expect(restored.accessibilityShapes, isFalse);
+    });
   });
 }

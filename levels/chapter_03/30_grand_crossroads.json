@@ -1,0 +1,87 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch03_10_grand_crossroads",
+  "version": 1,
+  "chapterId": 3,
+  "indexInChapter": 10,
+  "metadata": {
+    "titleKey": "level_03_10_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "hard",
+    "estimatedSolveTimeSeconds": 140,
+    "parMoves": 12,
+    "mechanics": [
+      "grand_crossroads",
+      "master_deduction"
+    ]
+  },
+  "grid": {
+    "width": 8,
+    "height": 8
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 7,
+      "y": 0,
+      "capacity": 2
+    },
+    {
+      "id": 2,
+      "x": 4,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 7,
+      "y": 7,
+      "capacity": 3
+    },
+    {
+      "id": 4,
+      "x": 2,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 5,
+      "x": 0,
+      "y": 7,
+      "capacity": 2
+    },
+    {
+      "id": 6,
+      "x": 2,
+      "y": 7,
+      "capacity": 3
+    },
+    {
+      "id": 7,
+      "x": 4,
+      "y": 4,
+      "capacity": 2
+    },
+    {
+      "id": 8,
+      "x": 0,
+      "y": 3,
+      "capacity": 1
+    },
+    {
+      "id": 9,
+      "x": 6,
+      "y": 4,
+      "capacity": 1
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "b7f063043c779ba128b5d47e67d846d52e2bb5c33fda246178de82d5386abe4e",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

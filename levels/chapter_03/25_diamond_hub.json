@@ -1,0 +1,81 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch03_05_diamond_hub",
+  "version": 1,
+  "chapterId": 3,
+  "indexInChapter": 5,
+  "metadata": {
+    "titleKey": "level_03_05_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "medium",
+    "estimatedSolveTimeSeconds": 100,
+    "parMoves": 11,
+    "mechanics": [
+      "diagonal_offset",
+      "double_bridge"
+    ]
+  },
+  "grid": {
+    "width": 7,
+    "height": 7
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 6,
+      "y": 6,
+      "capacity": 2
+    },
+    {
+      "id": 2,
+      "x": 0,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 0,
+      "y": 6,
+      "capacity": 2
+    },
+    {
+      "id": 4,
+      "x": 6,
+      "y": 0,
+      "capacity": 1
+    },
+    {
+      "id": 5,
+      "x": 0,
+      "y": 3,
+      "capacity": 4
+    },
+    {
+      "id": 6,
+      "x": 2,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 7,
+      "x": 4,
+      "y": 5,
+      "capacity": 2
+    },
+    {
+      "id": 8,
+      "x": 4,
+      "y": 1,
+      "capacity": 3
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "1963726408bb9013ddceb0f265e3cc9fb3f72fec03b45a7f073199e612dde47b",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

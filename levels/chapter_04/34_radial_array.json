@@ -1,0 +1,81 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch04_04_radial_array",
+  "version": 1,
+  "chapterId": 4,
+  "indexInChapter": 4,
+  "metadata": {
+    "titleKey": "level_04_04_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "hard",
+    "estimatedSolveTimeSeconds": 140,
+    "parMoves": 12,
+    "mechanics": [
+      "radial_expansion",
+      "pigeonhole"
+    ]
+  },
+  "grid": {
+    "width": 8,
+    "height": 8
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 7,
+      "y": 4,
+      "capacity": 1
+    },
+    {
+      "id": 2,
+      "x": 0,
+      "y": 6,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 0,
+      "y": 0,
+      "capacity": 3
+    },
+    {
+      "id": 4,
+      "x": 2,
+      "y": 0,
+      "capacity": 3
+    },
+    {
+      "id": 5,
+      "x": 3,
+      "y": 7,
+      "capacity": 2
+    },
+    {
+      "id": 6,
+      "x": 7,
+      "y": 0,
+      "capacity": 2
+    },
+    {
+      "id": 7,
+      "x": 3,
+      "y": 2,
+      "capacity": 3
+    },
+    {
+      "id": 8,
+      "x": 0,
+      "y": 2,
+      "capacity": 4
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "3fddcb023b4c14f9bc972fc03e3133f3acb71b22bdb541f17cb27c92af1405b2",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

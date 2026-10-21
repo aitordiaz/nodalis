@@ -6,6 +6,7 @@ import '../../content/level_repository.dart';
 import '../../session/game_session.dart';
 import '../../session/progress_repository.dart';
 import '../dialogs/how_to_play_dialog.dart';
+import '../dialogs/settings_dialog.dart';
 import 'gameplay_screen.dart';
 
 /// Chapter level browser displaying progression cards, unlock states, and completion marks.
@@ -13,6 +14,7 @@ class LevelSelectScreen extends StatefulWidget {
   final LevelRepository levelRepository;
   final ProgressRepository progressRepository;
   final VoidCallback onToggleTheme;
+  final ValueChanged<NodalisThemeMode>? onSetTheme;
   final bool? isDark;
   final NodalisThemeMode? themeMode;
 
@@ -21,6 +23,7 @@ class LevelSelectScreen extends StatefulWidget {
     required this.levelRepository,
     required this.progressRepository,
     required this.onToggleTheme,
+    this.onSetTheme,
     this.isDark,
     this.themeMode,
   });
@@ -40,8 +43,16 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
   void initState() {
     super.initState();
     final lastPlayed = widget.progressRepository.lastPlayedLevelId;
-    if (lastPlayed != null && lastPlayed.startsWith('ch02_')) {
-      _selectedChapter = 2;
+    if (lastPlayed != null) {
+      if (lastPlayed.startsWith('ch04_')) {
+        _selectedChapter = 4;
+      } else if (lastPlayed.startsWith('ch03_')) {
+        _selectedChapter = 3;
+      } else if (lastPlayed.startsWith('ch02_')) {
+        _selectedChapter = 2;
+      } else if (lastPlayed.startsWith('ch01_')) {
+        _selectedChapter = 1;
+      }
     }
   }
 
@@ -104,6 +115,25 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
                     ),
                     tooltip: 'How to Play',
                     onPressed: () => HowToPlayDialog.show(context),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.settings_outlined,
+                      color: palette.textPrimary,
+                    ),
+                    tooltip: 'Settings',
+                    onPressed: () => SettingsDialog.show(
+                      context,
+                      progressRepository: widget.progressRepository,
+                      onThemeChanged: (mode) {
+                        if (widget.onSetTheme != null) {
+                          widget.onSetTheme!(mode);
+                        } else {
+                          widget.onToggleTheme();
+                        }
+                      },
+                      currentThemeMode: widget.activeThemeMode,
+                    ),
                   ),
                   IconButton(
                     icon: Icon(
@@ -395,6 +425,7 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
             progressRepository: widget.progressRepository,
             levelRepository: widget.levelRepository,
             onToggleTheme: widget.onToggleTheme,
+            onSetTheme: widget.onSetTheme,
             themeMode: widget.activeThemeMode,
           );
         },
@@ -747,6 +778,8 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
         return Icons.dark_mode_outlined;
       case NodalisThemeMode.oled:
         return Icons.battery_saver_rounded;
+      case NodalisThemeMode.highContrast:
+        return Icons.contrast_rounded;
     }
   }
 

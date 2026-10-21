@@ -1,0 +1,81 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch03_06_dual_intersection",
+  "version": 1,
+  "chapterId": 3,
+  "indexInChapter": 6,
+  "metadata": {
+    "titleKey": "level_03_06_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "hard",
+    "estimatedSolveTimeSeconds": 108,
+    "parMoves": 11,
+    "mechanics": [
+      "dual_hubs",
+      "interlocking"
+    ]
+  },
+  "grid": {
+    "width": 8,
+    "height": 7
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 0,
+      "y": 2,
+      "capacity": 2
+    },
+    {
+      "id": 2,
+      "x": 4,
+      "y": 3,
+      "capacity": 3
+    },
+    {
+      "id": 3,
+      "x": 0,
+      "y": 0,
+      "capacity": 2
+    },
+    {
+      "id": 4,
+      "x": 3,
+      "y": 5,
+      "capacity": 1
+    },
+    {
+      "id": 5,
+      "x": 6,
+      "y": 3,
+      "capacity": 2
+    },
+    {
+      "id": 6,
+      "x": 4,
+      "y": 0,
+      "capacity": 3
+    },
+    {
+      "id": 7,
+      "x": 3,
+      "y": 2,
+      "capacity": 2
+    },
+    {
+      "id": 8,
+      "x": 6,
+      "y": 6,
+      "capacity": 1
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "64107b11c75786b12394860f468d151a2ba55027e6a766e8fbedb1bf9041b3fa",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

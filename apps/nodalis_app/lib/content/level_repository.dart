@@ -35,12 +35,40 @@ class LevelRepository {
     '20_parallel_ascension.json',
   ];
 
+  static const List<String> _chapter3FileNames = [
+    '21_central_junction.json',
+    '22_four_corners.json',
+    '23_the_bottleneck.json',
+    '24_trident.json',
+    '25_diamond_hub.json',
+    '26_dual_intersection.json',
+    '27_weave_pattern.json',
+    '28_the_citadel.json',
+    '29_narrow_causeway.json',
+    '30_grand_crossroads.json',
+  ];
+
+  static const List<String> _chapter4FileNames = [
+    '31_web_inception.json',
+    '32_hexagonal_web.json',
+    '33_double_cross.json',
+    '34_radial_array.json',
+    '35_concentric_ring.json',
+    '36_the_spider.json',
+    '37_matrix_web.json',
+    '38_labyrinthine_network.json',
+    '39_the_octopus.json',
+    '40_grandmaster_tapestry.json',
+  ];
+
   List<int> get chapterIds => _levelsByChapter.keys.toList()..sort();
 
   String getChapterTitle(int chapterId) {
     return switch (chapterId) {
       1 => 'First Connections',
       2 => 'Parallel Paths',
+      3 => 'The Crossroads',
+      4 => "Master's Web",
       _ => 'Chapter $chapterId',
     };
   }
@@ -53,7 +81,12 @@ class LevelRepository {
     _levelsById.clear();
     _levelsByChapter.clear();
 
-    final allFileNames = [..._chapter1FileNames, ..._chapter2FileNames];
+    final allFileNames = [
+      ..._chapter1FileNames,
+      ..._chapter2FileNames,
+      ..._chapter3FileNames,
+      ..._chapter4FileNames,
+    ];
     for (final fileName in allFileNames) {
       final jsonString =
           await assetBundle.loadString('assets/levels/$fileName');

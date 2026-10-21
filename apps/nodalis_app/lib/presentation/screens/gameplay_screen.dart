@@ -8,6 +8,7 @@ import '../../session/game_session.dart';
 import '../../session/progress_repository.dart';
 import '../dialogs/deductive_hint_dialog.dart';
 import '../dialogs/how_to_play_dialog.dart';
+import '../dialogs/settings_dialog.dart';
 import '../widgets/tutorial_banner.dart';
 
 /// Primary gameplay screen displaying the board, chapter metadata, and controls.
@@ -16,6 +17,7 @@ class GameplayScreen extends StatefulWidget {
   final ProgressRepository? progressRepository;
   final LevelRepository? levelRepository;
   final VoidCallback onToggleTheme;
+  final ValueChanged<NodalisThemeMode>? onSetTheme;
   final bool? isDark;
   final NodalisThemeMode? themeMode;
 
@@ -25,6 +27,7 @@ class GameplayScreen extends StatefulWidget {
     this.progressRepository,
     this.levelRepository,
     required this.onToggleTheme,
+    this.onSetTheme,
     this.isDark,
     this.themeMode,
   });
@@ -55,22 +58,36 @@ class _GameplayScreenState extends State<GameplayScreen> {
     super.dispose();
   }
 
+  void _triggerHaptic({bool medium = false}) {
+    if (widget.progressRepository != null) {
+      widget.progressRepository!.triggerHaptic(medium: medium);
+    } else {
+      if (medium) {
+        HapticFeedback.mediumImpact();
+      } else {
+        HapticFeedback.selectionClick();
+      }
+    }
+  }
+
   void _onSessionUpdated() {
     setState(() {
       _viewModel = _viewModel.copyWith(
         board: widget.session.currentBoard,
-        selectedIslandId: () => null,
       );
     });
 
     if (widget.session.isSolved && !_hasShownSolvedDialog) {
       _hasShownSolvedDialog = true;
-      HapticFeedback.mediumImpact();
+      _triggerHaptic(medium: true);
       widget.progressRepository?.recordCompletion(
         widget.session.level.id,
         widget.session.moveCount,
       );
-      Future.delayed(const Duration(milliseconds: 500), () {
+      final delay = widget.progressRepository?.reduceMotion == true
+          ? Duration.zero
+          : const Duration(milliseconds: 500);
+      Future.delayed(delay, () {
         if (!mounted) return;
         _showSolvedDialog();
       });
@@ -83,9 +100,11 @@ class _GameplayScreenState extends State<GameplayScreen> {
     );
 
     if (result.isOk) {
-      HapticFeedback.lightImpact();
+      if (widget.progressRepository?.hapticsEnabled ?? true) {
+        HapticFeedback.lightImpact();
+      }
     } else {
-      HapticFeedback.selectionClick();
+      _triggerHaptic();
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -95,6 +114,150 @@ class _GameplayScreenState extends State<GameplayScreen> {
         ),
       );
     }
+  }
+
+  void _navigateIsland(int dx, int dy) {
+    final board = widget.session.currentBoard;
+    if (board.islands.isEmpty) return;
+
+    final currentId = _viewModel.selectedIslandId;
+    if (currentId == null || !board.islands.containsKey(currentId)) {
+      final sortedIslands = board.islands.values.toList()
+        ..sort((a, b) {
+          final cmpY = a.position.y.compareTo(b.position.y);
+          return cmpY != 0 ? cmpY : a.position.x.compareTo(b.position.x);
+        });
+      setState(() {
+        _viewModel = _viewModel.copyWith(
+          selectedIslandId: () => sortedIslands.first.id,
+        );
+      });
+      _triggerHaptic();
+      return;
+    }
+
+    final current = board.islands[currentId]!;
+    Island? bestOrthogonal;
+    var minOrthogonalDist = 999999;
+
+    Island? bestDirectional;
+    var minDirectionalScore = 999999.0;
+
+    for (final other in board.islands.values) {
+      if (other.id == current.id) continue;
+      final deltaX = other.position.x - current.position.x;
+      final deltaY = other.position.y - current.position.y;
+
+      // Strict orthogonal alignment
+      if (dx != 0 && deltaY == 0 && (deltaX > 0) == (dx > 0)) {
+        final dist = deltaX.abs();
+        if (dist < minOrthogonalDist) {
+          minOrthogonalDist = dist;
+          bestOrthogonal = other;
+        }
+      } else if (dy != 0 && deltaX == 0 && (deltaY > 0) == (dy > 0)) {
+        final dist = deltaY.abs();
+        if (dist < minOrthogonalDist) {
+          minOrthogonalDist = dist;
+          bestOrthogonal = other;
+        }
+      }
+
+      // Directional half-plane
+      final isHeadingDirection = (dx > 0 && deltaX > 0) ||
+          (dx < 0 && deltaX < 0) ||
+          (dy > 0 && deltaY > 0) ||
+          (dy < 0 && deltaY < 0);
+
+      if (isHeadingDirection) {
+        final primaryDist = (dx != 0 ? deltaX.abs() : deltaY.abs()).toDouble();
+        final secondaryDist =
+            (dx != 0 ? deltaY.abs() : deltaX.abs()).toDouble();
+        final score = primaryDist + secondaryDist * 2.5;
+        if (score < minDirectionalScore) {
+          minDirectionalScore = score;
+          bestDirectional = other;
+        }
+      }
+    }
+
+    final target = bestOrthogonal ?? bestDirectional;
+    if (target != null) {
+      setState(() {
+        _viewModel = _viewModel.copyWith(
+          selectedIslandId: () => target.id,
+        );
+      });
+      _triggerHaptic();
+    }
+  }
+
+  void _connectDirection(int dx, int dy) {
+    final board = widget.session.currentBoard;
+    var currentId = _viewModel.selectedIslandId;
+    if (currentId == null || !board.islands.containsKey(currentId)) {
+      _navigateIsland(dx, dy);
+      currentId = _viewModel.selectedIslandId;
+      if (currentId == null) return;
+    }
+
+    final current = board.islands[currentId]!;
+    final neighbors = board.getAvailableOrthogonalNeighbors(currentId);
+    Island? targetNeighbor;
+
+    for (final neighbor in neighbors) {
+      final deltaX = neighbor.position.x - current.position.x;
+      final deltaY = neighbor.position.y - current.position.y;
+
+      if (dx != 0 && deltaY == 0 && (deltaX > 0) == (dx > 0)) {
+        targetNeighbor = neighbor;
+        break;
+      }
+      if (dy != 0 && deltaX == 0 && (deltaY > 0) == (dy > 0)) {
+        targetNeighbor = neighbor;
+        break;
+      }
+    }
+
+    if (targetNeighbor != null) {
+      _handleConnect(current.id, targetNeighbor.id);
+    } else {
+      _triggerHaptic();
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No orthogonal island reachable in that direction.'),
+          duration: Duration(milliseconds: 1000),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  void _clearSelectedIsland() {
+    final currentId = _viewModel.selectedIslandId;
+    if (currentId == null) return;
+    _triggerHaptic();
+    widget.session.dispatchAction(
+      ClearIslandBridgesAction(islandId: currentId),
+    );
+  }
+
+  void _openSettingsDialog() {
+    if (widget.progressRepository == null) return;
+    _triggerHaptic();
+    SettingsDialog.show(
+      context,
+      progressRepository: widget.progressRepository!,
+      onThemeChanged: (mode) {
+        if (widget.onSetTheme != null) {
+          widget.onSetTheme!(mode);
+        } else {
+          widget.onToggleTheme();
+        }
+      },
+      currentThemeMode: widget.activeThemeMode,
+    );
   }
 
   String _formatFriendlyError(DomainFailure? failure) {
@@ -112,7 +275,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
   }
 
   void _showHintDialog() {
-    HapticFeedback.selectionClick();
+    _triggerHaptic();
     final hint = _deductiveEngine.evaluateHint(
       board: widget.session.currentBoard,
       initialBoard: widget.session.level.toInitialBoard(),
@@ -133,7 +296,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
       hint: hint,
       onUndo: widget.session.canUndo
           ? () {
-              HapticFeedback.selectionClick();
+              _triggerHaptic();
               widget.session.undo();
             }
           : null,
@@ -194,6 +357,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
                           progressRepository: widget.progressRepository,
                           levelRepository: widget.levelRepository,
                           onToggleTheme: widget.onToggleTheme,
+                          onSetTheme: widget.onSetTheme,
                           themeMode: widget.activeThemeMode,
                         );
                       },
@@ -225,6 +389,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
                             progressRepository: widget.progressRepository,
                             levelRepository: widget.levelRepository,
                             onToggleTheme: widget.onToggleTheme,
+                            onSetTheme: widget.onSetTheme,
                             themeMode: widget.activeThemeMode,
                           );
                         },
@@ -262,51 +427,55 @@ class _GameplayScreenState extends State<GameplayScreen> {
         // Undo
         const SingleActivator(LogicalKeyboardKey.keyZ, control: true): () {
           if (widget.session.canUndo) {
-            HapticFeedback.selectionClick();
+            _triggerHaptic();
             widget.session.undo();
           }
         },
         const SingleActivator(LogicalKeyboardKey.keyZ, meta: true): () {
           if (widget.session.canUndo) {
-            HapticFeedback.selectionClick();
+            _triggerHaptic();
             widget.session.undo();
           }
         },
         // Redo
         const SingleActivator(LogicalKeyboardKey.keyY, control: true): () {
           if (widget.session.canRedo) {
-            HapticFeedback.selectionClick();
+            _triggerHaptic();
             widget.session.redo();
           }
         },
         const SingleActivator(LogicalKeyboardKey.keyY, meta: true): () {
           if (widget.session.canRedo) {
-            HapticFeedback.selectionClick();
+            _triggerHaptic();
             widget.session.redo();
           }
         },
         const SingleActivator(LogicalKeyboardKey.keyZ,
             control: true, shift: true): () {
           if (widget.session.canRedo) {
-            HapticFeedback.selectionClick();
+            _triggerHaptic();
             widget.session.redo();
           }
         },
         const SingleActivator(LogicalKeyboardKey.keyZ, meta: true, shift: true):
             () {
           if (widget.session.canRedo) {
-            HapticFeedback.selectionClick();
+            _triggerHaptic();
             widget.session.redo();
           }
         },
         // Reset
         const SingleActivator(LogicalKeyboardKey.keyR): () {
-          HapticFeedback.selectionClick();
+          _triggerHaptic();
           widget.session.reset();
           _hasShownSolvedDialog = false;
         },
         // Hint
         const SingleActivator(LogicalKeyboardKey.keyH): _showHintDialog,
+        // Settings
+        const SingleActivator(LogicalKeyboardKey.keyO): _openSettingsDialog,
+        const SingleActivator(LogicalKeyboardKey.comma, control: true):
+            _openSettingsDialog,
         // Deselect
         const SingleActivator(LogicalKeyboardKey.escape): () {
           if (_viewModel.selectedIslandId != null) {
@@ -315,6 +484,45 @@ class _GameplayScreenState extends State<GameplayScreen> {
             });
           }
         },
+        // Grid Island Navigation (Arrows / WASD)
+        const SingleActivator(LogicalKeyboardKey.arrowUp): () =>
+            _navigateIsland(0, -1),
+        const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
+            _navigateIsland(0, 1),
+        const SingleActivator(LogicalKeyboardKey.arrowLeft): () =>
+            _navigateIsland(-1, 0),
+        const SingleActivator(LogicalKeyboardKey.arrowRight): () =>
+            _navigateIsland(1, 0),
+        const SingleActivator(LogicalKeyboardKey.keyW): () =>
+            _navigateIsland(0, -1),
+        const SingleActivator(LogicalKeyboardKey.keyS): () =>
+            _navigateIsland(0, 1),
+        const SingleActivator(LogicalKeyboardKey.keyA): () =>
+            _navigateIsland(-1, 0),
+        const SingleActivator(LogicalKeyboardKey.keyD): () =>
+            _navigateIsland(1, 0),
+        // Directional Bridge Construction (Shift + Arrows / Shift + WASD)
+        const SingleActivator(LogicalKeyboardKey.arrowUp, shift: true): () =>
+            _connectDirection(0, -1),
+        const SingleActivator(LogicalKeyboardKey.arrowDown, shift: true): () =>
+            _connectDirection(0, 1),
+        const SingleActivator(LogicalKeyboardKey.arrowLeft, shift: true): () =>
+            _connectDirection(-1, 0),
+        const SingleActivator(LogicalKeyboardKey.arrowRight, shift: true): () =>
+            _connectDirection(1, 0),
+        const SingleActivator(LogicalKeyboardKey.keyW, shift: true): () =>
+            _connectDirection(0, -1),
+        const SingleActivator(LogicalKeyboardKey.keyS, shift: true): () =>
+            _connectDirection(0, 1),
+        const SingleActivator(LogicalKeyboardKey.keyA, shift: true): () =>
+            _connectDirection(-1, 0),
+        const SingleActivator(LogicalKeyboardKey.keyD, shift: true): () =>
+            _connectDirection(1, 0),
+        // Bridge Clearing
+        const SingleActivator(LogicalKeyboardKey.delete): _clearSelectedIsland,
+        const SingleActivator(LogicalKeyboardKey.backspace):
+            _clearSelectedIsland,
+        const SingleActivator(LogicalKeyboardKey.keyX): _clearSelectedIsland,
       },
       child: Focus(
         autofocus: true,
@@ -330,63 +538,73 @@ class _GameplayScreenState extends State<GameplayScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          if (canPop)
-                            IconButton(
-                              icon: Icon(Icons.arrow_back_rounded,
-                                  color: palette.textPrimary),
-                              tooltip: 'Back to Levels',
-                              onPressed: () => Navigator.of(context).pop(),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            if (canPop)
+                              IconButton(
+                                icon: Icon(Icons.arrow_back_rounded,
+                                    color: palette.textPrimary),
+                                tooltip: 'Back to Levels',
+                                visualDensity: VisualDensity.compact,
+                                onPressed: () => Navigator.of(context).pop(),
+                              ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    widget.session.level.chapterId == 0
+                                        ? widget.session.level.metadata.titleKey
+                                        : 'Chapter ${widget.session.level.chapterId}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: palette.textSecondary,
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2.0),
+                                  Text(
+                                    widget.session.level.chapterId == 0
+                                        ? widget.session.level.metadata
+                                            .difficultyTier.value
+                                            .toUpperCase()
+                                        : 'Level ${widget.session.level.indexInChapter}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: palette.textPrimary,
+                                      fontSize: 19.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.session.level.chapterId == 0
-                                    ? widget.session.level.metadata.titleKey
-                                    : 'Chapter ${widget.session.level.chapterId}',
-                                style: TextStyle(
-                                  color: palette.textSecondary,
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              const SizedBox(height: 2.0),
-                              Text(
-                                widget.session.level.chapterId == 0
-                                    ? widget.session.level.metadata
-                                        .difficultyTier.value
-                                        .toUpperCase()
-                                    : 'Level ${widget.session.level.indexInChapter}',
-                                style: TextStyle(
-                                  color: palette.textPrimary,
-                                  fontSize: 19.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             'Moves: ${widget.session.moveCount}',
                             style: TextStyle(
                               color: palette.textSecondary,
-                              fontSize: 14.0,
+                              fontSize: 13.0,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(width: 4.0),
+                          const SizedBox(width: 2.0),
                           IconButton(
                             icon: Icon(
                               Icons.lightbulb_outline_rounded,
                               color: palette.islandSelectedStroke,
                             ),
                             tooltip: 'Hint (H)',
+                            visualDensity: VisualDensity.compact,
                             onPressed: _showHintDialog,
                           ),
                           IconButton(
@@ -395,7 +613,17 @@ class _GameplayScreenState extends State<GameplayScreen> {
                               color: palette.textPrimary,
                             ),
                             tooltip: 'How to Play',
+                            visualDensity: VisualDensity.compact,
                             onPressed: () => HowToPlayDialog.show(context),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.settings_outlined,
+                              color: palette.textPrimary,
+                            ),
+                            tooltip: 'Settings (O)',
+                            visualDensity: VisualDensity.compact,
+                            onPressed: _openSettingsDialog,
                           ),
                           IconButton(
                             icon: Icon(
@@ -404,6 +632,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
                             ),
                             tooltip:
                                 'Theme: ${widget.activeThemeMode.label} (tap to cycle)',
+                            visualDensity: VisualDensity.compact,
                             onPressed: widget.onToggleTheme,
                           ),
                         ],
@@ -426,6 +655,9 @@ class _GameplayScreenState extends State<GameplayScreen> {
                       viewModel: _viewModel.copyWith(
                         board: widget.session.currentBoard,
                       ),
+                      accessibilityShapes:
+                          widget.progressRepository?.accessibilityShapes ??
+                              true,
                       onViewModelChanged: (newVm) {
                         setState(() {
                           _viewModel = newVm.copyWith(
@@ -463,7 +695,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
                           ),
                           onPressed: widget.session.canUndo
                               ? () {
-                                  HapticFeedback.selectionClick();
+                                  _triggerHaptic();
                                   widget.session.undo();
                                 }
                               : null,
@@ -489,7 +721,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
                           ),
                           onPressed: widget.session.canRedo
                               ? () {
-                                  HapticFeedback.selectionClick();
+                                  _triggerHaptic();
                                   widget.session.redo();
                                 }
                               : null,
@@ -514,7 +746,7 @@ class _GameplayScreenState extends State<GameplayScreen> {
                             ),
                           ),
                           onPressed: () {
-                            HapticFeedback.selectionClick();
+                            _triggerHaptic();
                             widget.session.reset();
                             _hasShownSolvedDialog = false;
                           },
@@ -544,6 +776,8 @@ class _GameplayScreenState extends State<GameplayScreen> {
         return Icons.dark_mode_outlined;
       case NodalisThemeMode.oled:
         return Icons.battery_saver_rounded;
+      case NodalisThemeMode.highContrast:
+        return Icons.contrast_rounded;
     }
   }
 }

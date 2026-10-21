@@ -1,0 +1,75 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch03_02_four_corners",
+  "version": 1,
+  "chapterId": 3,
+  "indexInChapter": 2,
+  "metadata": {
+    "titleKey": "level_03_02_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "medium",
+    "estimatedSolveTimeSeconds": 76,
+    "parMoves": 10,
+    "mechanics": [
+      "hub_routing",
+      "isolation_avoidance"
+    ]
+  },
+  "grid": {
+    "width": 7,
+    "height": 7
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 2,
+      "y": 6,
+      "capacity": 1
+    },
+    {
+      "id": 2,
+      "x": 0,
+      "y": 6,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 3,
+      "y": 3,
+      "capacity": 5
+    },
+    {
+      "id": 4,
+      "x": 3,
+      "y": 0,
+      "capacity": 2
+    },
+    {
+      "id": 5,
+      "x": 0,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 6,
+      "x": 3,
+      "y": 5,
+      "capacity": 1
+    },
+    {
+      "id": 7,
+      "x": 0,
+      "y": 3,
+      "capacity": 5
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "9ca7894c6181118b5088b31f4712c4ea731c8a1fbcc5e87b5edffb64aeb0612b",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch04_02_hexagonal_web",
+  "version": 1,
+  "chapterId": 4,
+  "indexInChapter": 2,
+  "metadata": {
+    "titleKey": "level_04_02_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "hard",
+    "estimatedSolveTimeSeconds": 120,
+    "parMoves": 12,
+    "mechanics": [
+      "hex_routing",
+      "isolation_avoidance"
+    ]
+  },
+  "grid": {
+    "width": 8,
+    "height": 8
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 5,
+      "y": 4,
+      "capacity": 2
+    },
+    {
+      "id": 2,
+      "x": 6,
+      "y": 7,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 6,
+      "y": 0,
+      "capacity": 2
+    },
+    {
+      "id": 4,
+      "x": 2,
+      "y": 0,
+      "capacity": 2
+    },
+    {
+      "id": 5,
+      "x": 6,
+      "y": 5,
+      "capacity": 4
+    },
+    {
+      "id": 6,
+      "x": 2,
+      "y": 4,
+      "capacity": 4
+    },
+    {
+      "id": 7,
+      "x": 0,
+      "y": 4,
+      "capacity": 1
+    },
+    {
+      "id": 8,
+      "x": 6,
+      "y": 3,
+      "capacity": 3
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "1a7a09db44d5b6102d120ae067128780e3be9a4bb697df4fee36b7a75a2e6f70",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

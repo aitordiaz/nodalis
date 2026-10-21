@@ -1,0 +1,87 @@
+{
+  "$schema": "../schemas/level.schema.json",
+  "id": "ch04_07_matrix_web",
+  "version": 1,
+  "chapterId": 4,
+  "indexInChapter": 7,
+  "metadata": {
+    "titleKey": "level_04_07_title",
+    "author": "Aitor Diaz",
+    "difficultyTier": "hard",
+    "estimatedSolveTimeSeconds": 170,
+    "parMoves": 13,
+    "mechanics": [
+      "matrix_interlock",
+      "isolation_avoidance"
+    ]
+  },
+  "grid": {
+    "width": 9,
+    "height": 8
+  },
+  "islands": [
+    {
+      "id": 1,
+      "x": 2,
+      "y": 1,
+      "capacity": 3
+    },
+    {
+      "id": 2,
+      "x": 8,
+      "y": 6,
+      "capacity": 2
+    },
+    {
+      "id": 3,
+      "x": 6,
+      "y": 6,
+      "capacity": 4
+    },
+    {
+      "id": 4,
+      "x": 3,
+      "y": 6,
+      "capacity": 3
+    },
+    {
+      "id": 5,
+      "x": 6,
+      "y": 2,
+      "capacity": 1
+    },
+    {
+      "id": 6,
+      "x": 8,
+      "y": 1,
+      "capacity": 2
+    },
+    {
+      "id": 7,
+      "x": 0,
+      "y": 6,
+      "capacity": 2
+    },
+    {
+      "id": 8,
+      "x": 0,
+      "y": 0,
+      "capacity": 1
+    },
+    {
+      "id": 9,
+      "x": 2,
+      "y": 3,
+      "capacity": 2
+    }
+  ],
+  "tutorial": {
+    "hasInteractiveTutorial": false,
+    "hintTriggers": []
+  },
+  "verification": {
+    "solutionHash": "e51faa2b15075bb158c0971b3ac04b9cf4b473464618c83804820ecb9506e03d",
+    "uniquenessVerified": true,
+    "deductionDepth": 2
+  }
+}

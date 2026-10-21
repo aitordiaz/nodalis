@@ -14,6 +14,7 @@ class BoardWidget extends StatefulWidget {
   final ValueChanged<BoardViewModel> onViewModelChanged;
   final void Function(int fromId, int toId) onConnect;
   final ValueChanged<int>? onIslandCleared;
+  final bool accessibilityShapes;
 
   const BoardWidget({
     super.key,
@@ -21,6 +22,7 @@ class BoardWidget extends StatefulWidget {
     required this.onViewModelChanged,
     required this.onConnect,
     this.onIslandCleared,
+    this.accessibilityShapes = true,
   });
 
   @override
@@ -78,6 +80,7 @@ class _BoardWidgetState extends State<BoardWidget> {
                   viewModel: widget.viewModel,
                   geometry: geometry,
                   palette: palette,
+                  accessibilityShapes: widget.accessibilityShapes,
                 ),
               ),
             ),
