@@ -11,6 +11,7 @@
 Nodalis is engineered as an event-driven, accessible, zero-idle-power puzzle application.
 For full details on architecture, engineering standards, and roadmap, see:
 
+*   🤖 [**Agent Engineering Guidelines & Protocol**](AGENTS.md)
 *   📖 [**Technical & Product Contract**](docs/CONTRACT.md)
 *   🏛️ [**Architecture & Module Boundaries**](docs/ARCHITECTURE.md)
 *   📐 [**Level Format Specification**](docs/LEVEL_FORMAT.md)
